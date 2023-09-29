@@ -1,2 +1,2 @@
 # computational-evolution
-BSc Project 
+Imperial College London BSc Project - Ben Stevens
