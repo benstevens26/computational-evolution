@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Agent:
     def __init__(self, pos, speed):
@@ -6,7 +7,7 @@ class Agent:
         
         Arguments:
 
-        pos - list or array containing initial position e.g. [0,0]
+        pos - list or numpy array containing initial position e.g. [0,0]
 
         speed - speed of agent in ms^-1 e.g. 1, 2.4
         '''
@@ -18,9 +19,16 @@ class Agent:
         self.speed = speed
         self.energy = 100
 
+
     def pos(self):
         '''return agent position'''
         return self.pos
+    
+    def setPos(self, new_pos):
+        if type(new_pos) == type(list):
+            new_pos = np.asarray(new_pos)
+
+        self.pos = new_pos
     
     def speed(self):
         '''return agent speed'''
@@ -36,17 +44,9 @@ class Agent:
         dx = self.speed * t * np.sin(theta)
         dy = self.speed * t * np.cos(theta)
 
-        if self.pos[0] + dx < 0: #stops movement at wall
-            dx = 0
-        
-        if self.pos[1] + dy < 0:
-            dy = 0
-
         self.pos = self.pos + np.asarray([dx,dy]) #updates position
 
-        self.energy = self.energy - (0.5 * self.speed * self.speed)  #updates energy
-
-        print(self.pos) #currently for testing
+        self.energy = self.energy - (t * self.speed * self.speed)  # energy loss proportional to t*v^2
 
     def eat(self):
         '''eat food and reset energy'''
