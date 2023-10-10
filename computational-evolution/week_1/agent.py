@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Agent:
-    def __init__(self, pos, speed):
+    def __init__(self, pos, speed, ident):
         '''Initialise an organism (agent)
         
         Arguments:
@@ -18,11 +18,16 @@ class Agent:
         self.pos = pos
         self.speed = speed
         self.energy = 100
+        self.UID = ident
 
 
     def pos(self):
         '''return agent position'''
         return self.pos
+
+    def UID(self):
+        '''return agent unique identification'''
+        return self.UID
     
     def setPos(self, new_pos):
         if type(new_pos) == type(list):
