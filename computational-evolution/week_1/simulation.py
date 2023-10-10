@@ -40,7 +40,7 @@ class Simulation:
             Agent.move(self.agent_list[i], 0.05) #first move each agent in list
 
             if Agent.pos(self.agent_list[i])[0] > self.env.size:  #not allowing out of bounds - should test cons. energy
-                Agent.setPos(self.agent_list[i], [self.env.size , Agent.pos(self.agent_list[i])[1]])
+                Agent.setPos(self.agent_list[i], [self.env.size, Agent.pos(self.agent_list[i])[1]])
 
             if Agent.pos(self.agent_list[i])[0] < 0:  
                 Agent.setPos(self.agent_list[i], [0, Agent.pos(self.agent_list[i])[1]])    
@@ -52,10 +52,9 @@ class Simulation:
                 Agent.setPos(self.agent_list[i], [Agent.pos(self.agent_list[i])[0], 0])            
 
 
-
             if Agent.energy(self.agent_list[i]) <= 0: # delete if no energy
                 self.del_list_agents.append(self.agent_list[i])
- 
+                self.agent_patches[i].remove() #removes corresponding agent patch
 
 
             del_list_food = []
@@ -86,12 +85,7 @@ class Simulation:
             self.agent_patches[i].center = Agent.pos(self.agent_list[i])
 
         for i in range(self.num_agents):
-            self.agent_patches[i].center = Agent.pos(self.agent_list[i]) 
- 
-
-        for i in range(self.num_agents): #delete patch if energy gone
-            if Agent.energy(self.agent_list[i]) <= 0:
-                self.agent_patches[i].remove()
+            self.agent_patches[i].center = Agent.pos(self.agent_list[i])
 
         return self.agent_patches, self.food_patches
     
@@ -114,7 +108,7 @@ class Simulation:
             for i in self.food_patches: #add food patches
                 axes.add_patch(i)
 
-            anim = animation.FuncAnimation(fig, self.animate, frames=num_steps, interval=10) 
+            anim = animation.FuncAnimation(fig, self.animate, frames=num_steps, interval=10)
             
             plt.show()
             
