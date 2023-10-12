@@ -25,12 +25,13 @@ class Agent:
 
     Methods:
         pos(): Return agent position
-        setPos(): Set agent position
+        setPos(new_pos): Set agent position
         speed(): Return agent speed
         energy(): Return agent energy
+        setEnergy(new_energy): Set agent energy
         patch(): Return patch object
         eat(): Increase agent energy by EAT_ENERGY (see CONSTANTS.py)
-        id(): Return agent id
+        id(): Return agent unique id
         randWalk(t): Return dx, dy for a correlated random walk
         move(t): Move agent by time t (in s) using randWalk() 
         updatePatch(): Update patch attribute centre
@@ -71,6 +72,10 @@ class Agent:
         """Return agent energy"""
         return self.energy
     
+    def setEnergy(self, new_energy):
+        """Set agent energy"""
+        self.energy = new_energy
+    
     def patch(self):
         """Return patch object"""
         return self.patch
@@ -78,8 +83,11 @@ class Agent:
     def eat(self):
         """Increase agent energy by EAT_ENERGY"""
         self.energy += EAT_ENERGY
+        if self.energy > MAX_ENERGY: # energy is maximum
+            self.energy = MAX_ENERGY
 
     def id(self):
+        """Return agent unique id"""
         return id(self)
     
     def randWalk(self, t):
@@ -122,6 +130,9 @@ class Agent:
     def removePatch(self):
         """Remove patch attribute"""
         self.patch.center = np.asarray([500, 500]) # for testing
+
+
+
 
         
 

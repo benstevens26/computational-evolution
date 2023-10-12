@@ -16,7 +16,6 @@ from CONSTANTS import *
 from agent import Agent
 from food import Food
 
-
 class Environment:
     """Environment Class
     
@@ -50,6 +49,8 @@ class Environment:
 
         self.size = ENV_SIZE
         self.time_elapsed = 0
+        self.num_agents = 0
+        self.num_food = 0
 
         self.agent_list = [] # create agent and food lists 
         self.food_list = []
@@ -60,15 +61,18 @@ class Environment:
         y = np.random.uniform(0, ENV_SIZE)
         return np.asarray([x,y])
 
-    def addAgent(self):
+    def addAgent(self, init_pos=None):
         """Add agent into environment"""
 
-        init_pos = self.genPos()
+        if init_pos is None: # when pos not given
+            init_pos = self.genPos()
+
         agent = Agent(init_pos)
-        self.agent_list.append(Agent(init_pos))
+        self.agent_list.append(agent)
+        self.num_agents += 1
 
         if ANIMATE == True:
-            self.axes.add_patch(Agent.patch(agent))
+             self.axes.add_patch(Agent.patch(agent))
 
     def getAgent(self, id):
         """Return agent with a given id"""
@@ -89,9 +93,6 @@ class Environment:
 
     def populate(self):
         """Populate the environment with agents and food"""
-
-        self.num_agents = INIT_NUM_AGENTS
-        self.num_food = INIT_NUM_FOOD
         
         for i in range(0, INIT_NUM_AGENTS):
             self.addAgent()
@@ -100,9 +101,6 @@ class Environment:
 
     def eatCheck(self, agent):
         """Check for food nearby agent and eat()"""
-
-        if isinstance(agent, Agent) == False:
-            raise TypeError
 
         del_list_food = []
         for food in self.food_list:
@@ -116,7 +114,15 @@ class Environment:
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
+    def divide(self, parent):
+        """Duplicate agent"""
 
+        child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
+        new_energy = Agent.energy(parent) - INIT_ENERGY # energy of parent decreases by new energy of child
+        Agent.setEnergy(parent, new_energy)
+
+        self.addAgent(init_pos = child_pos)
+        
     def step(self):
         """Step a set time through the environment"""
 
@@ -131,11 +137,13 @@ class Environment:
             Agent.move(agent, t)
             self.eatCheck(agent) 
         
-            if Agent.energy(agent) < 0:
-                
+            if Agent.energy(agent) < 0: #death
                 Agent.removePatch(agent)
                 del_list_agent.append(agent)
                 self.num_agents -= 1
+
+            if Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY: #division
+                self.divide(parent=agent)
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
@@ -146,7 +154,6 @@ class Environment:
             self.addFood()
             self.num_food += 1
         
-
     def animate(self, i):
         """Animate environment using matplotlib"""
 
