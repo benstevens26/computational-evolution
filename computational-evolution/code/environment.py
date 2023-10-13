@@ -69,7 +69,7 @@ class Environment:
 
         agent = Agent(init_pos)
         self.agent_list.append(agent)
-        self.num_agents += 1
+        self.num_agents = int(self.num_agents + 1)
 
         if ANIMATE == True:
              self.axes.add_patch(Agent.patch(agent))
@@ -140,7 +140,7 @@ class Environment:
             if Agent.energy(agent) < 0: #death
                 Agent.removePatch(agent)
                 del_list_agent.append(agent)
-                self.num_agents -= 1
+                self.num_agents = int(self.num_agents - 1)
 
             if Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY: #division
                 self.divide(parent=agent)
@@ -158,7 +158,8 @@ class Environment:
         """Animate environment using matplotlib"""
 
         self.step()
-        self.time_text.set_text('Time: {:.2f}'.format(self.time_elapsed))
+        self.time_text.set_text('Time: {:.1f}'.format(self.time_elapsed))
+        self.pop_text.set_text('Population: {:.0f}'.format(self.num_agents))
         
         for agent in self.agent_list:
             Agent.updatePatch(agent)
@@ -174,8 +175,9 @@ class Environment:
         if ANIMATE == True:
             self.fig = plt.figure('Environment', figsize=(6, 6))
             self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
-            self.time_text = self.axes.text(0.4*ENV_SIZE, 1.02*ENV_SIZE, '')
 
+            self.time_text = self.axes.text(0.4*ENV_SIZE, 1.02*ENV_SIZE, '')
+            self.pop_text = self.axes.text(0.4*ENV_SIZE +10, 1.02*ENV_SIZE, '')
 
             self.populate()
 
