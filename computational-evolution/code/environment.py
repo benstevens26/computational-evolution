@@ -158,6 +158,7 @@ class Environment:
         """Animate environment using matplotlib"""
 
         self.step()
+        self.time_text.set_text('Time: {:.2f}'.format(self.time_elapsed))
         
         for agent in self.agent_list:
             Agent.updatePatch(agent)
@@ -165,16 +166,20 @@ class Environment:
         for food in self.food_list:
             Food.updatePatch(food)
 
+
+
     def run(self):
         """Run simulation for NUM_FRAMES"""
 
         if ANIMATE == True:
             self.fig = plt.figure('Environment', figsize=(6, 6))
             self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
+            self.time_text = self.axes.text(0.4*ENV_SIZE, 1.02*ENV_SIZE, '')
+
 
             self.populate()
 
-            anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_FRAMES, repeat=False, interval=10)
+            anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_FRAMES, repeat=False, interval=10) # 10x speed
             plt.show()
         
         else:
