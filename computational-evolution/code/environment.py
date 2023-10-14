@@ -7,6 +7,7 @@ Functions:
     None
     
 """
+import random
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -136,15 +137,19 @@ class Environment:
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
-    def divide(self, parent):
-        """Duplicate agent"""
+    def reproduce(self, parent):
+        """Check for nearby eligible agent and produce offspring"""
 
         if self.num_agents > 1:
-            child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
-            new_energy = Agent.energy(parent) - INIT_ENERGY  # energy of parent decreases by new energy of child
-            Agent.setEnergy(parent, new_energy)
+            for agent in self.agent_list:
+                if agent != parent and abs(Agent.pos(parent) - Agent.pos(agent)) < AGENT_SIZE \
+                        and Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:
+                    parent = random.choice([agent, parent])
+                    child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
+                    new_energy = Agent.energy(parent) - INIT_ENERGY  # energy of parent decreases by new energy of child
+                    Agent.setEnergy(parent, new_energy)
 
-            self.addAgent(init_pos=child_pos)
+                    self.addAgent(init_pos=child_pos)
 
     def step(self):
         """Step a set time through the environment"""
@@ -173,8 +178,8 @@ class Environment:
                 self.num_agents = int(self.num_agents - 1)
                 self.recordpop()
 
-            if Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:  # division
-                self.divide(parent=agent)
+            if Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:  # division/reproduction
+                self.reproduce(parent=agent)
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
@@ -224,7 +229,8 @@ class Environment:
             print(self.pop_df)
 
     def recordagents(self):
-        for i, t in zip(self.agent_data, self.time_list):
+        """Records the position, IDs and energies of agents for each time step"""
+        for i, t in zip(self.agent_data, self.time_list): # Extracts information from agent list
             pos = Agent.pos(i)
             energy = Agent.energy(i)
             i_d = Agent.id(i)
@@ -232,4 +238,5 @@ class Environment:
             self.agent_df.loc[len(self.agent_df)] = [t, i_d, pos[0], pos[1], energy]
 
     def recordpop(self):
+        """Records the number of food and agents as simulation runs"""
         self.pop_df.loc[len(self.pop_df)] = [self.time_elapsed, self.num_agents, self.num_food]
