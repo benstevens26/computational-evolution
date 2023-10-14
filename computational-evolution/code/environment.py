@@ -139,11 +139,12 @@ class Environment:
     def divide(self, parent):
         """Duplicate agent"""
 
-        child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
-        new_energy = Agent.energy(parent) - INIT_ENERGY  # energy of parent decreases by new energy of child
-        Agent.setEnergy(parent, new_energy)
+        if self.num_agents > 1:
+            child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
+            new_energy = Agent.energy(parent) - INIT_ENERGY  # energy of parent decreases by new energy of child
+            Agent.setEnergy(parent, new_energy)
 
-        self.addAgent(init_pos=child_pos)
+            self.addAgent(init_pos=child_pos)
 
     def step(self):
         """Step a set time through the environment"""
