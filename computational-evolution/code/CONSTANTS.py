@@ -11,11 +11,11 @@ REP_THRESHOLD = 0.8 # reproduction threshold, e.g. 0.8 -> 80% energy required to
 
 # environment related constants
 ENV_SIZE = 40
-INIT_NUM_AGENTS = 1
+INIT_NUM_AGENTS = 10
 INIT_NUM_FOOD = 0
 TIME_STEP = 0.1
-NUM_FRAMES = 10000 # NUM_FRAMES / INTERVAL = TIME
-ANIMATE = True
+NUM_FRAMES = 100 # NUM_FRAMES / INTERVAL = TIME
+ANIMATE = False
 
 # food related constants
 FOOD_SIZE = 0.5
