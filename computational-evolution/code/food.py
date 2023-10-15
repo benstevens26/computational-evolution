@@ -44,6 +44,10 @@ class Food:
     def pos(self):
         """Return food position"""
         return self.pos
+
+    def id(self):
+        """Return agent unique id"""
+        return id(self)
     
     def patch(self):
         """Return patch object"""

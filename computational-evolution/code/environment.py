@@ -18,9 +18,6 @@ from agent import Agent
 from food import Food
 import pandas as pd
 
-pd.set_option('display.width', 10000)
-pd.set_option('display.max_columns', 100)
-pd.set_option('display.max_rows', 1000)
 
 class Environment:
     """Environment Class
@@ -69,7 +66,7 @@ class Environment:
         # Dataframes for data storage
         self.agent_df = pd.DataFrame(columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy'])
         self.pop_df = pd.DataFrame(columns=['Time Elapsed/s', 'Agent Population', 'Food Population'])
-        self.food_df = pd.DataFrame(columns=['Time Elapsed'])
+        self.food_df = pd.DataFrame(columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
 
     def genPos(self):
         """Return a random position within environment"""
@@ -105,10 +102,15 @@ class Environment:
     def addFood(self):
         """Add food into environment"""
 
+        self.time_list.append(self.time_elapsed)
+
         init_pos = self.genPos()
         food = Food(init_pos)
 
         self.food_list.append(food)
+        self.food_data.append(food)
+
+        self.recordfood()
         self.recordpop()
 
         if ANIMATE == True:
@@ -142,14 +144,27 @@ class Environment:
 
         if self.num_agents > 1:
             for agent in self.agent_list:
-                if agent != parent and abs(Agent.pos(parent) - Agent.pos(agent)) < AGENT_SIZE \
-                        and Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:
-                    parent = random.choice([agent, parent])
-                    child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
-                    new_energy = Agent.energy(parent) - INIT_ENERGY  # energy of parent decreases by new energy of child
-                    Agent.setEnergy(parent, new_energy)
+                if agent != parent and Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:
+                    distance = np.linalg.norm(Agent.pos(parent) - Agent.pos(agent))  # Calculates distance between
+                    # two eligible agents
 
-                    self.addAgent(init_pos=child_pos)
+                    if distance < AGENT_SIZE:
+                        chosen_parent = random.choice([agent, parent])  # Randomly chooses a parent
+                        child_pos = Agent.pos(chosen_parent) + np.random.uniform(-0.1, 0.1, 2)
+                        new_energy = Agent.energy(chosen_parent) - INIT_ENERGY  # energy of parent decreases by new
+                        # energy of child
+                        Agent.setEnergy(chosen_parent, new_energy)
+
+                        self.addAgent(init_pos=child_pos)
+
+    def divide(self, parent):
+        """Duplicate agent"""
+
+        child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
+        new_energy = Agent.energy(parent) - INIT_ENERGY  # energy of parent decreases by new energy of child
+        Agent.setEnergy(parent, new_energy)
+
+        self.addAgent(init_pos=child_pos)
 
     def step(self):
         """Step a set time through the environment"""
@@ -219,18 +234,19 @@ class Environment:
             anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_FRAMES, repeat=False,
                                            interval=10)  # 10x speed
             plt.show()
-            print(self.pop_df)
+            print(self.food_df)
 
         else:
             self.populate()
             for i in range(0, NUM_FRAMES):
                 self.step()
 
-            print(self.pop_df)
+            print(self.food_df)
 
     def recordagents(self):
         """Records the position, IDs and energies of agents for each time step"""
-        for i, t in zip(self.agent_data, self.time_list): # Extracts information from agent list
+
+        for i, t in zip(self.agent_data, self.time_list):  # Extracts information from agent list
             pos = Agent.pos(i)
             energy = Agent.energy(i)
             i_d = Agent.id(i)
@@ -239,4 +255,14 @@ class Environment:
 
     def recordpop(self):
         """Records the number of food and agents as simulation runs"""
+
         self.pop_df.loc[len(self.pop_df)] = [self.time_elapsed, self.num_agents, self.num_food]
+
+    def recordfood(self):
+        """Records the position and ID of food for each time step """
+
+        for f in self.food_data:
+            pos = Food.pos(f)
+            i_d = Food.id(f)
+
+            self.food_df.loc[len(self.food_df)] = [self.time_elapsed, i_d, pos[0], pos[1]]
