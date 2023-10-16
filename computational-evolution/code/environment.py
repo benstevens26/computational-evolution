@@ -89,9 +89,6 @@ class Environment:
         self.agent_data.append(agent)
         self.num_agents = int(self.num_agents + 1)
 
-        self.recordagents()
-        self.recordpop()
-
         if ANIMATE == True:
             self.axes.add_patch(Agent.patch(agent))
 
@@ -109,9 +106,6 @@ class Environment:
 
         self.food_list.append(food)
         self.food_data.append(food)
-
-        self.recordfood()
-        self.recordpop()
 
         if ANIMATE == True:
             self.axes.add_patch(Agent.patch(food))
@@ -238,7 +232,7 @@ class Environment:
             for i in range(0, NUM_FRAMES):
                 self.step()
 
-            num = np.random.random_integers()
+            num = np.random.randint(0, 100000)
             self.agent_df.to_csv(
                 f"computational-evolution/Data/Agent_Data_{num}.csv",
                 index=False)
