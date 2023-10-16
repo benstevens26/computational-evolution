@@ -60,7 +60,6 @@ class Environment:
         self.food_list = []
 
         self.agent_data = []
-        self.time_list = []
         self.food_data = []
 
         # Dataframes for data storage
@@ -80,7 +79,7 @@ class Environment:
         if init_pos is None:  # when pos not given
             init_pos = self.genPos()
 
-        self.time_list.append(self.time_elapsed)
+        self.agent_data = []
 
         agent = Agent(init_pos)
         self.agent_list.append(agent)
@@ -101,8 +100,6 @@ class Environment:
 
     def addFood(self):
         """Add food into environment"""
-
-        self.time_list.append(self.time_elapsed)
 
         init_pos = self.genPos()
         food = Food(init_pos)
@@ -178,12 +175,10 @@ class Environment:
         del_list_agent = []
         for agent in self.agent_list:
             self.agent_data = []  # reset to ensure duplicate data not added to df
-            self.time_list = []
 
             Agent.move(agent, t)
             self.eatCheck(agent)
 
-            self.time_list.append(self.time_elapsed)  # add time and agent info to lists
             self.agent_data.append(agent)
             self.recordagents()
 
@@ -234,27 +229,31 @@ class Environment:
             anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_FRAMES, repeat=False,
                                            interval=10)  # 10x speed
             plt.show()
-            print(self.food_df)
 
         else:
             self.populate()
             for i in range(0, NUM_FRAMES):
                 self.step()
 
-            num = np.random.uniform(0,100)
-            self.agent_df.to_csv(f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Agent_Data_{num}.csv", index=False)
-            self.pop_df.to_csv(f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Population_Data_{num}.csv", index=False)
-            self.food_df.to_csv(f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Food_Data_{num}.csv", index=False)
+            num = np.random.random_integers()
+            self.agent_df.to_csv(
+                f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Agent_Data_{num}.csv",
+                index=False)
+            self.pop_df.to_csv(
+                f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Population_Data_{num}.csv",
+                index=False)
+            self.food_df.to_csv(
+                f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Food_Data_{num}.csv", index=False)
 
     def recordagents(self):
         """Records the position, IDs and energies of agents for each time step"""
 
-        for i, t in zip(self.agent_data, self.time_list):  # Extracts information from agent list
+        for i in self.agent_data:  # Extracts information from agent list
             pos = Agent.pos(i)
             energy = Agent.energy(i)
             i_d = Agent.id(i)
 
-            self.agent_df.loc[len(self.agent_df)] = [t, i_d, pos[0], pos[1], energy]
+            self.agent_df.loc[len(self.agent_df)] = [self.time_elapsed, i_d, pos[0], pos[1], energy]
 
     def recordpop(self):
         """Records the number of food and agents as simulation runs"""
