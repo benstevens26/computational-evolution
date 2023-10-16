@@ -194,7 +194,7 @@ class Environment:
                 self.recordpop()
 
             if Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:  # division/reproduction
-                self.reproduce(parent=agent)
+                self.divide(parent=agent)
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
@@ -241,7 +241,10 @@ class Environment:
             for i in range(0, NUM_FRAMES):
                 self.step()
 
-            print(self.food_df)
+            num = np.random.uniform(0,100)
+            self.agent_df.to_csv(f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Agent_Data_{num}.csv", index=False)
+            self.pop_df.to_csv(f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Population_Data_{num}.csv", index=False)
+            self.food_df.to_csv(f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Food_Data_{num}.csv", index=False)
 
     def recordagents(self):
         """Records the position, IDs and energies of agents for each time step"""
