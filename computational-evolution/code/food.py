@@ -1,7 +1,7 @@
 """Food Module
 
 Classes:
-    Environment
+    Food
 
 Functions:
     None
@@ -16,10 +16,15 @@ class Food:
     """Food Class
     
     Attributes:
-        !ADD ATTRIBUTES!
+        pos (array): Position of food
+        patch (matplotlib object): Representation of food for animation
 
     Methods:
-        !ADD METHODS!
+        pos(): Return food position
+        patch(): Return patch object
+        setPos(new_pos): Set food position to new_pos
+        updatePatch(): Update patch attribute centre
+        removePatch(): Remove patch attribute
 
     """   
     def __init__(self, pos):
@@ -39,6 +44,10 @@ class Food:
     def pos(self):
         """Return food position"""
         return self.pos
+
+    def id(self):
+        """Return agent unique id"""
+        return id(self)
     
     def patch(self):
         """Return patch object"""
@@ -57,4 +66,5 @@ class Food:
 
     def removePatch(self):
         """Remove patch attribute"""
-        self.patch.center = np.asarray([500, 500]) # for testing
+        self.patch.center = np.asarray([500, 500]) # illegal -> change
+
