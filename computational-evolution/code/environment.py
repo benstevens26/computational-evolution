@@ -40,6 +40,9 @@ class Environment:
         step(): Step a set time through the environment
         animate(): Animate environment using matplotlib 
         run(animate): Run simulation for NUM_FRAMES, option to animate
+        recordagents(): Record the position, IDs and energies of agents for each time step
+        recordpop(): Record the number of food and agents as simulation runs
+        recordfood(): Record the position and ID of food for each time step
 
     """
 
@@ -246,7 +249,7 @@ class Environment:
                 f"computational-evolution/Data/Food_Data_{num}.csv", index=False)
 
     def recordagents(self):
-        """Records the position, IDs and energies of agents for each time step"""
+        """Record the position, IDs and energies of agents for each time step"""
 
         for i in self.agent_data:  # Extracts information from agent list
             pos = Agent.pos(i)
@@ -256,12 +259,12 @@ class Environment:
             self.agent_df.loc[len(self.agent_df)] = [self.time_elapsed, i_d, pos[0], pos[1], energy]
 
     def recordpop(self):
-        """Records the number of food and agents as simulation runs"""
+        """Record the number of food and agents as simulation runs"""
 
         self.pop_df.loc[len(self.pop_df)] = [self.time_elapsed, self.num_agents, self.num_food]
 
     def recordfood(self):
-        """Records the position and ID of food for each time step """
+        """Record the position and ID of food for each time step"""
 
         for f in self.food_data:
             pos = Food.pos(f)
