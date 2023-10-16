@@ -237,13 +237,13 @@ class Environment:
 
             num = np.random.random_integers()
             self.agent_df.to_csv(
-                f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Agent_Data_{num}.csv",
+                f"computational-evolution/Data/Agent_Data_{num}.csv",
                 index=False)
             self.pop_df.to_csv(
-                f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Population_Data_{num}.csv",
+                f"computational-evolution/Data/Population_Data_{num}.csv",
                 index=False)
             self.food_df.to_csv(
-                f"C:/Users/alyss/computational-evolution/computational-evolution/Data/Food_Data_{num}.csv", index=False)
+                f"computational-evolution/Data/Food_Data_{num}.csv", index=False)
 
     def recordagents(self):
         """Records the position, IDs and energies of agents for each time step"""
