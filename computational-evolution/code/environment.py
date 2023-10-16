@@ -106,6 +106,7 @@ class Environment:
 
         self.food_list.append(food)
         self.food_data.append(food)
+        self.num_food = int(self.num_food + 1)
 
         if ANIMATE == True:
             self.axes.add_patch(Agent.patch(food))
@@ -129,7 +130,6 @@ class Environment:
 
                 self.num_food = self.num_food - 1
                 Agent.eat(agent)
-                self.recordpop()
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
@@ -177,13 +177,11 @@ class Environment:
             self.eatCheck(agent)
 
             self.agent_data.append(agent)
-            self.recordagents()
 
             if Agent.energy(agent) < 0:  # death
                 Agent.removePatch(agent)
                 del_list_agent.append(agent)
                 self.num_agents = int(self.num_agents - 1)
-                self.recordpop()
 
             if Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:  # division/reproduction
                 self.divide(parent=agent)
@@ -195,8 +193,12 @@ class Environment:
 
         if r <= p:
             self.addFood()
-            self.num_food += 1
-            self.recordpop()
+
+    def recordState(self):
+        """Record all information about state"""
+        #self.recordagents()
+        #self.recordfood()
+        self.recordpop()
 
     def animate(self, i):
         """Animate environment using matplotlib"""
@@ -231,6 +233,9 @@ class Environment:
             self.populate()
             for i in range(0, NUM_FRAMES):
                 self.step()
+                if int(i/25) == i/25:
+                    self.recordState()
+                print('frame',i)
 
             num = np.random.randint(0, 100000)
             self.agent_df.to_csv(
