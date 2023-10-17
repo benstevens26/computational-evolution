@@ -20,13 +20,9 @@ def importData(folder_path = 'computational-evolution/Data'):
         
     return dataframes 
 
-
 dataframes = importData()
 
-print(dataframes['Agent_Data_49331'])
-
-
-exit()
+df_pop = dataframes['Population_Data_781']
 
 y1 = df_pop['Agent Population']
 y2 = df_pop['Food Population']

@@ -35,6 +35,7 @@ class Agent:
         randWalk(t): Return dx, dy for a correlated random walk
         move(t): Move agent by time t (in s) using randWalk() 
         updatePatch(): Update patch attribute centre
+        removePatch(): Remove patch attribute
 
     """
     def __init__(self, pos):
@@ -129,7 +130,7 @@ class Agent:
 
     def removePatch(self):
         """Remove patch attribute"""
-        self.patch.center = np.asarray([500, 500]) # for testing
+        self.patch.center = np.asarray([500, 500]) # CHANGE this #
 
 
 

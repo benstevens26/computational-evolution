@@ -7,8 +7,8 @@ Functions:
     None
     
 """
-import random
 
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -40,9 +40,10 @@ class Environment:
         step(): Step a set time through the environment
         animate(): Animate environment using matplotlib 
         run(animate): Run simulation for NUM_FRAMES, option to animate
-        recordagents(): Record the position, IDs and energies of agents for each time step
-        recordpop(): Record the number of food and agents as simulation runs
-        recordfood(): Record the position and ID of food for each time step
+        recordAgents(): Append data for each agent instance to agent_data
+        recordPop(): Append population data to pop_data
+        recordFood(): Append data for each food instance to food_data
+        saveData(): Package all data into dataframe and save csv's to /data
 
     """
 
@@ -62,16 +63,13 @@ class Environment:
         self.agent_list = []  # create agent and food lists
         self.food_list = []
 
+        self.food_data = [] # data lists
         self.agent_data = []
-        self.food_data = []
-
-        # Dataframes for data storage
-        self.agent_df = pd.DataFrame(columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy'])
-        self.pop_df = pd.DataFrame(columns=['Time Elapsed/s', 'Agent Population', 'Food Population'])
-        self.food_df = pd.DataFrame(columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
+        self.pop_data = []
 
     def genPos(self):
         """Return a random position within environment"""
+
         x = np.random.uniform(0, ENV_SIZE)
         y = np.random.uniform(0, ENV_SIZE)
         return np.asarray([x, y])
@@ -82,11 +80,8 @@ class Environment:
         if init_pos is None:  # when pos not given
             init_pos = self.genPos()
 
-        self.agent_data = []
-
         agent = Agent(init_pos)
         self.agent_list.append(agent)
-        self.agent_data.append(agent)
         self.num_agents = int(self.num_agents + 1)
 
         if ANIMATE == True:
@@ -105,7 +100,6 @@ class Environment:
         food = Food(init_pos)
 
         self.food_list.append(food)
-        self.food_data.append(food)
         self.num_food = int(self.num_food + 1)
 
         if ANIMATE == True:
@@ -124,14 +118,14 @@ class Environment:
 
         del_list_food = []
         for food in self.food_list:
-            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) < AGENT_SIZE:
+            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) < (AGENT_SIZE + FOOD_SIZE):
                 Food.removePatch(food)  # remove food patch
                 del_list_food.append(food)
 
-                self.num_food = self.num_food - 1
+                self.num_food = int(self.num_food - 1)
                 Agent.eat(agent)
 
-        self.food_list = [food for food in self.food_list if food not in del_list_food]
+        self.food_list = [food for food in self.food_list if food not in del_list_food] # new food list
 
     def reproduce(self, parent):
         """Check for nearby eligible agent and produce offspring"""
@@ -139,8 +133,8 @@ class Environment:
         if self.num_agents > 1:
             for agent in self.agent_list:
                 if agent != parent and Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:
-                    distance = np.linalg.norm(Agent.pos(parent) - Agent.pos(agent))  # Calculates distance between
-                    # two eligible agents
+                    # calculate distance between eligible agents
+                    distance = np.linalg.norm(Agent.pos(parent) - Agent.pos(agent)) 
 
                     if distance < AGENT_SIZE:
                         chosen_parent = random.choice([agent, parent])  # Randomly chooses a parent
@@ -154,10 +148,10 @@ class Environment:
     def divide(self, parent):
         """Duplicate agent"""
 
-        child_pos = Agent.pos(parent) + np.asarray([0.1, 0.1])
-        new_energy = Agent.energy(parent) - INIT_ENERGY  # energy of parent decreases by new energy of child
-        Agent.setEnergy(parent, new_energy)
+        child_pos = Agent.pos(parent) + np.asarray([0.01, 0.01])
+        new_energy = Agent.energy(parent) - INIT_ENERGY  # energy decrease
 
+        Agent.setEnergy(parent, new_energy)
         self.addAgent(init_pos=child_pos)
 
     def step(self):
@@ -167,38 +161,28 @@ class Environment:
             raise Exception("No agents remaining -> stopping simulation")
 
         t = TIME_STEP  # simulation time between steps
-        self.time_elapsed += t
 
         del_list_agent = []
         for agent in self.agent_list:
-            self.agent_data = []  # reset to ensure duplicate data not added to df
 
             Agent.move(agent, t)
             self.eatCheck(agent)
 
-            self.agent_data.append(agent)
-
-            if Agent.energy(agent) < 0:  # death
+            if Agent.energy(agent) < 0:  # remove dead agents
                 Agent.removePatch(agent)
                 del_list_agent.append(agent)
                 self.num_agents = int(self.num_agents - 1)
 
-            if Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:  # division/reproduction
+            if Agent.energy(agent) > (REP_THRESHOLD * MAX_ENERGY):  # division/reproduction
                 self.divide(parent=agent)
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
-        p = FOOD_SPAWN_RATE  # natural food addition rate per time step
         r = np.random.uniform(0.0, 1.0)
+        if r <= FOOD_SPAWN_RATE: 
+            self.addFood() # base food spawn rate
 
-        if r <= p:
-            self.addFood()
-
-    def recordState(self):
-        """Record all information about state"""
-        self.recordagents()
-        self.recordfood()
-        self.recordpop()
+        self.time_elapsed += t 
 
     def animate(self, i):
         """Animate environment using matplotlib"""
@@ -231,42 +215,77 @@ class Environment:
 
         else:
             self.populate()
+
             for i in range(0, NUM_STEPS):
-                self.step()
+
                 if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
                     self.recordState()
-                print('frame',i)
+                    print('step', i, '/', NUM_STEPS) # frame counter 
 
-            num = np.random.randint(0, 100000)
-            self.agent_df.to_csv(
-                f"computational-evolution/Data/Agent_Data_{num}.csv",
-                index=False)
-            self.pop_df.to_csv(
-                f"computational-evolution/Data/Population_Data_{num}.csv",
-                index=False)
-            self.food_df.to_csv(
-                f"computational-evolution/Data/Food_Data_{num}.csv", index=False)
+                self.step()
 
-    def recordagents(self):
-        """Record the position, IDs and energies of agents for each time step"""
+            self.saveData()
 
-        for i in self.agent_data:  # Extracts information from agent list
-            pos = Agent.pos(i)
-            energy = Agent.energy(i)
-            i_d = Agent.id(i)
+    def recordAgents(self):
+        """Append data for each agent instance to agent_data"""
 
-            self.agent_df.loc[len(self.agent_df)] = [self.time_elapsed, i_d, pos[0], pos[1], energy]
+        for agent in self.agent_list:  # extracts information from agent list
+            pos = Agent.pos(agent)
+            energy = Agent.energy(agent)
+            id = Agent.id(agent)
 
-    def recordpop(self):
-        """Record the number of food and agents as simulation runs"""
+            time_rounded = np.round(self.time_elapsed, 3)
+            energy_rounded = np.round(energy, 3)
+            x_rounded = np.round(pos[0], 3)
+            y_rounded = np.round(pos[1], 3)
 
-        self.pop_df.loc[len(self.pop_df)] = [self.time_elapsed, self.num_agents, self.num_food]
+            self.agent_data.append([time_rounded, id, x_rounded, y_rounded, energy_rounded])
 
-    def recordfood(self):
-        """Record the position and ID of food for each time step"""
+    def recordPop(self):
+        """Append population data to pop_data"""
 
-        for f in self.food_data:
+        time_rounded = np.round(self.time_elapsed, 3)
+
+        self.pop_data.append([time_rounded, self.num_agents, self.num_food])
+
+    def recordFood(self):
+        """Append data for each food instance to food_data"""
+
+        for f in self.food_list:
             pos = Food.pos(f)
-            i_d = Food.id(f)
+            id = Food.id(f)
 
-            self.food_df.loc[len(self.food_df)] = [self.time_elapsed, i_d, pos[0], pos[1]]
+            time_rounded = np.round(self.time_elapsed, 3)
+            x_rounded = np.round(pos[0], 3)
+            y_rounded = np.round(pos[1], 3)
+
+            self.food_data.append([time_rounded, id, x_rounded, y_rounded])
+
+    def recordState(self):
+        """Record all information about state"""
+        self.recordAgents()
+        self.recordFood()
+        self.recordPop()
+
+    def saveData(self):
+        """Package all data into dataframe and save csv's to /data"""
+
+        # dataframes 
+        agent_df = pd.DataFrame(data=self.agent_data,
+            columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy'])
+        pop_df = pd.DataFrame(data=self.pop_data, 
+            columns=['Time Elapsed/s', 'Agent Population', 'Food Population'])
+        food_df = pd.DataFrame(data=self.food_data,
+            columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
+
+        num = np.random.randint(0, 100000) # saving data with random id
+
+        agent_df.to_csv(
+            f"computational-evolution/data/Agent_Data_{num}.csv",
+            index=False)
+        pop_df.to_csv(
+            f"computational-evolution/data/Population_Data_{num}.csv",
+            index=False)
+        food_df.to_csv(
+            f"computational-evolution/data/Food_Data_{num}.csv",
+            index=False)
