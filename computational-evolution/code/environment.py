@@ -196,8 +196,8 @@ class Environment:
 
     def recordState(self):
         """Record all information about state"""
-        #self.recordagents()
-        #self.recordfood()
+        self.recordagents()
+        self.recordfood()
         self.recordpop()
 
     def animate(self, i):
@@ -225,15 +225,15 @@ class Environment:
 
             self.populate()
 
-            anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_FRAMES, repeat=False,
+            anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_STEPS, repeat=False,
                                            interval=10)  # 10x speed
             plt.show()
 
         else:
             self.populate()
-            for i in range(0, NUM_FRAMES):
+            for i in range(0, NUM_STEPS):
                 self.step()
-                if int(i/25) == i/25:
+                if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
                     self.recordState()
                 print('frame',i)
 
