@@ -1,4 +1,12 @@
-"""Analysis Module"""
+"""Analysis Module
+
+Classes:
+    None
+
+Functions:
+    importData(): Import all csv files, unpack into datafrmes, and return dictionary
+
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,9 +28,14 @@ def importData(folder_path = 'computational-evolution/Data'):
         
     return dataframes 
 
+
 dataframes = importData()
 
-df_pop = dataframes['Population_Data_781']
+# df_pop = [df for df in dataframes if df.startswith('Population')]
+
+df_pop = dataframes['Population_Data_3796']
+          
+
 
 y1 = df_pop['Agent Population']
 y2 = df_pop['Food Population']

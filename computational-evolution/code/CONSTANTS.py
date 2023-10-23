@@ -14,9 +14,9 @@ ENV_SIZE = 40
 INIT_NUM_AGENTS = 1
 INIT_NUM_FOOD = 1
 TIME_STEP = 0.1
-NUM_STEPS = 25000 # NUM_STEPS * TIME_STEP = TOTAL_TIME
+NUM_STEPS = 100000 # NUM_STEPS * TIME_STEP = TOTAL_TIME
 DATA_INTERVAL = 10 # number of steps between data collection
-ANIMATE = False
+ANIMATE = True
 
 # food related constants
 FOOD_SIZE = 0.5
