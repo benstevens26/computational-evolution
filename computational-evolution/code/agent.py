@@ -123,9 +123,10 @@ class Agent:
 
         return delta_x, delta_y
 
-    def move(self, t):
-        """Move agent by time t using randWalk() and decrease agent energy"""
+    def move(self):
+        """Move agent using randWalk() and decrease agent energy"""
 
+        t = TIME_STEP
         dx, dy = self.randWalk(t) # generate dx, dy
         self.pos += np.asarray([dx, dy]) # update position
 
