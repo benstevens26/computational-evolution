@@ -130,7 +130,7 @@ class Agent:
         dx, dy = self.randWalk(t) # generate dx, dy
         self.pos += np.asarray([dx, dy]) # update position
 
-        energy_loss = t * self.speed * self.speed
+        energy_loss = t * self.speed
         self.energy = self.energy - energy_loss # update energy
 
     def updatePatch(self):
