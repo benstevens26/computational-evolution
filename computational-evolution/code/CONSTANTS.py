@@ -11,8 +11,8 @@ REP_THRESHOLD = 0.8 # reproduction threshold, e.g. 0.8 -> 80% energy required to
 
 # environment related constants
 ENV_SIZE = 40
-INIT_NUM_AGENTS = 1
-INIT_NUM_FOOD = 1
+INIT_NUM_AGENTS = 20
+INIT_NUM_FOOD = 20
 TIME_STEP = 0.1
 NUM_STEPS = 100000 # NUM_STEPS * TIME_STEP = TOTAL_TIME
 DATA_INTERVAL = 10 # number of steps between data collection

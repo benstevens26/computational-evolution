@@ -26,7 +26,7 @@ class Environment:
         size (int): size of environment walls in m
         num_agents (int): number of agents in the environment
         num_food (int): number of food objects in the environment
-        time_elapsed (float): time elapsed in seconds
+        steps (int): number of steps elapsed
         agent_list (list): list of agent objects
         food_list (list): list of food objects
 
@@ -47,7 +47,7 @@ class Environment:
 
     """
 
-    def __init__(self):
+    def __init__(self, size=ENV_SIZE, sim_num=1):
         """Initialise environment
         
         Parameters:
@@ -55,10 +55,11 @@ class Environment:
 
         """
 
-        self.size = ENV_SIZE
-        self.time_elapsed = 0
+        self.size = size
+        self.steps = 0
         self.num_agents = 0
         self.num_food = 0
+        self.sim_num = sim_num
 
         self.agent_list = []  # create agent and food lists
         self.food_list = []
@@ -160,12 +161,10 @@ class Environment:
         if self.num_agents == 0:
             raise Exception("No agents remaining -> stopping simulation")
 
-        t = TIME_STEP  # simulation time between steps
-
         del_list_agent = []
         for agent in self.agent_list:
 
-            Agent.move(agent, t)
+            Agent.move(agent)
             self.eatCheck(agent)
 
             if Agent.energy(agent) < 0:  # remove dead agents
@@ -182,14 +181,14 @@ class Environment:
         if r <= FOOD_SPAWN_RATE: 
             self.addFood() # base food spawn rate
 
-        self.time_elapsed += t 
+        self.steps += 1
 
     def animate(self, i):
         """Animate environment using matplotlib"""
 
         self.step()
-        self.time_text.set_text('Time: {:.1f}'.format(self.time_elapsed))
-        self.pop_text.set_text('Population: {:.0f}'.format(self.num_agents))
+        self.step_text.set_text('Steps: '+str(self.steps))
+        self.pop_text.set_text('Population: '+str(self.num_agents))
 
         for agent in self.agent_list:
             Agent.updatePatch(agent)
@@ -197,14 +196,14 @@ class Environment:
         for food in self.food_list:
             Food.updatePatch(food)
 
-    def run(self):
+    def run(self, data='all'):
         """Run simulation for NUM_FRAMES"""
 
         if ANIMATE == True:
             self.fig = plt.figure('Environment', figsize=(6, 6))
             self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
 
-            self.time_text = self.axes.text(0.4 * ENV_SIZE, 1.02 * ENV_SIZE, '')
+            self.step_text = self.axes.text(0.4 * ENV_SIZE, 1.02 * ENV_SIZE, '')
             self.pop_text = self.axes.text(0.4 * ENV_SIZE + 10, 1.02 * ENV_SIZE, '')
 
             self.populate()
@@ -214,17 +213,50 @@ class Environment:
             plt.show()
 
         else:
-            self.populate()
+            if data == 'none':
+                self.populate()
 
-            for i in range(0, NUM_STEPS):
+                for i in range(0, NUM_STEPS):
+                    self.step()
 
-                if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
-                    self.recordState()
-                    print('step', i, '/', NUM_STEPS) # frame counter 
+            elif data == 'all':
+                self.populate()
 
-                self.step()
+                for i in range(0, NUM_STEPS):
 
-            self.saveData()
+                    if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
+                        self.recordState()
+
+                    self.step()
+                    
+                self.saveData()
+
+            elif data == 'agents':
+                self.populate()
+
+                for i in range(0, NUM_STEPS):
+
+                    if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
+                        self.recordAgents()
+
+                    self.step()
+                    
+                self.saveData()
+
+            elif data == 'pop':
+                self.populate()
+
+                for i in range(0, NUM_STEPS):
+
+                    if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
+                        self.recordPop()
+
+                    self.step()
+                    
+                self.saveData()
+
+            else:
+                raise Exception('Enter valid option for data')
 
     def recordAgents(self):
         """Append data for each agent instance to agent_data"""
@@ -234,19 +266,16 @@ class Environment:
             energy = Agent.energy(agent)
             id = Agent.id(agent)
 
-            time_rounded = np.round(self.time_elapsed, 3)
             energy_rounded = np.round(energy, 3)
             x_rounded = np.round(pos[0], 3)
             y_rounded = np.round(pos[1], 3)
 
-            self.agent_data.append([time_rounded, id, x_rounded, y_rounded, energy_rounded])
+            self.agent_data.append([self.steps, id, x_rounded, y_rounded, energy_rounded])
 
     def recordPop(self):
         """Append population data to pop_data"""
 
-        time_rounded = np.round(self.time_elapsed, 3)
-
-        self.pop_data.append([time_rounded, self.num_agents, self.num_food])
+        self.pop_data.append([self.steps, self.num_agents, self.num_food])
 
     def recordFood(self):
         """Append data for each food instance to food_data"""
@@ -255,11 +284,10 @@ class Environment:
             pos = Food.pos(f)
             id = Food.id(f)
 
-            time_rounded = np.round(self.time_elapsed, 3)
             x_rounded = np.round(pos[0], 3)
             y_rounded = np.round(pos[1], 3)
 
-            self.food_data.append([time_rounded, id, x_rounded, y_rounded])
+            self.food_data.append([self.steps, id, x_rounded, y_rounded])
 
     def recordState(self):
         """Record all information about state"""
@@ -278,14 +306,19 @@ class Environment:
         food_df = pd.DataFrame(data=self.food_data,
             columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
 
-        num = np.random.randint(0, 100000) # saving data with random id
+        filename = str(self.size)+'_'+str(self.sim_num)
 
-        agent_df.to_csv(
-            f"computational-evolution/data/Agent_Data_{num}.csv",
-            index=False)
-        pop_df.to_csv(
-            f"computational-evolution/data/Population_Data_{num}.csv",
-            index=False)
-        food_df.to_csv(
-            f"computational-evolution/data/Food_Data_{num}.csv",
-            index=False)
+        if agent_df.shape[0] > 10:
+             agent_df.to_csv(
+                f"computational-evolution/data/Agent_Data_{filename}.csv",
+                index=False)
+        
+        if pop_df.shape[0] > 10: 
+            pop_df.to_csv(
+                f"computational-evolution/data/Population_Data_{filename}.csv",
+                index=False)
+            
+        if food_df.shape[0] > 10:
+            food_df.to_csv(
+                f"computational-evolution/data/Food_Data_{filename}.csv",
+                index=False)

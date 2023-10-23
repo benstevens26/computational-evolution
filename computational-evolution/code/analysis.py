@@ -31,11 +31,10 @@ def importData(folder_path = 'computational-evolution/Data'):
 
 dataframes = importData()
 
-# df_pop = [df for df in dataframes if df.startswith('Population')]
+df_pop_20 = [df for df in dataframes if df.startswith('Population')]
 
-df_pop = dataframes['Population_Data_3796']
+df_pop = dataframes['Population_Data_50224']
           
-
 
 y1 = df_pop['Agent Population']
 y2 = df_pop['Food Population']

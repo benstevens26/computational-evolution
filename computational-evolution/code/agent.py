@@ -105,19 +105,28 @@ class Agent:
 
         new_pos = self.pos + np.asarray([delta_x, delta_y])
 
-        if new_pos[0] <= 0 or new_pos[0] >= ENV_SIZE: # out of x boundary
-            self.direction = np.pi - self.direction
-            delta_x = self.speed * t * np.cos(self.direction)
+        if new_pos[0] <= 0:
+            self.pos = [ENV_SIZE, self.pos[1]]
+            delta_x = new_pos[0] + delta_x
 
-        elif new_pos[1] <= 0 or new_pos[1] >= ENV_SIZE: #out of y boundary
-            self.direction = -self.direction
-            delta_y = self.speed * t * np.sin(self.direction)
+        elif new_pos[0] >= ENV_SIZE:
+            self.pos = [0, self.pos[1]]
+            delta_x = new_pos[0] - ENV_SIZE - delta_x
+
+        elif new_pos[1] <= 0:
+            self.pos = [self.pos[0], ENV_SIZE]
+            delta_y = new_pos[1] + delta_y
+
+        elif new_pos[1] >= ENV_SIZE:
+            self.pos = [self.pos[0], 0]
+            delta_y = new_pos[1] - ENV_SIZE - delta_y
 
         return delta_x, delta_y
 
-    def move(self, t):
-        """Move agent by time t using randWalk() and decrease agent energy"""
+    def move(self):
+        """Move agent using randWalk() and decrease agent energy"""
 
+        t = TIME_STEP
         dx, dy = self.randWalk(t) # generate dx, dy
         self.pos += np.asarray([dx, dy]) # update position
 
