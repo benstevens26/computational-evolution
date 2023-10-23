@@ -105,13 +105,17 @@ class Agent:
 
         new_pos = self.pos + np.asarray([delta_x, delta_y])
 
-        if new_pos[0] <= 0 or new_pos[0] >= ENV_SIZE: # out of x boundary
-            self.direction = np.pi - self.direction
-            delta_x = self.speed * t * np.cos(self.direction)
+        if new_pos[0] <= 0:
+            self.pos = [ENV_SIZE, self.pos[1]]
 
-        elif new_pos[1] <= 0 or new_pos[1] >= ENV_SIZE: #out of y boundary
-            self.direction = -self.direction
-            delta_y = self.speed * t * np.sin(self.direction)
+        elif new_pos[0] >= ENV_SIZE:
+            self.pos = [0, self.pos[1]]
+
+        elif new_pos[1] <= 0:
+            self.pos = [self.pos[0], ENV_SIZE]
+
+        elif new_pos[1] >= ENV_SIZE:
+            self.pos = [self.pos[0], 0]
 
         return delta_x, delta_y
 
