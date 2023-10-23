@@ -107,15 +107,19 @@ class Agent:
 
         if new_pos[0] <= 0:
             self.pos = [ENV_SIZE, self.pos[1]]
+            delta_x = new_pos[0] + delta_x
 
         elif new_pos[0] >= ENV_SIZE:
             self.pos = [0, self.pos[1]]
+            delta_x = new_pos[0] - ENV_SIZE - delta_x
 
         elif new_pos[1] <= 0:
             self.pos = [self.pos[0], ENV_SIZE]
+            delta_y = new_pos[1] + delta_y
 
         elif new_pos[1] >= ENV_SIZE:
             self.pos = [self.pos[0], 0]
+            delta_y = new_pos[1] - ENV_SIZE - delta_y
 
         return delta_x, delta_y
 
