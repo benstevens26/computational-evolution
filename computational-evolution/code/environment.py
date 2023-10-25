@@ -37,13 +37,15 @@ class Environment:
         addFood(): Add food into environment
         populate(): Populate the environment with agents and food
         eatCheck(agent): Check for food nearby agent and eat()
+        divide(parent): Create a copy of the parent
+        mutate(parent): Allow for mutation to occur during divide method
         step(): Step a set time through the environment
         animate(): Animate environment using matplotlib 
         run(animate): Run simulation for NUM_FRAMES, option to animate
         recordAgents(): Append data for each agent instance to agent_data
         recordPop(): Append population data to pop_data
         recordFood(): Append data for each food instance to food_data
-        saveData(): Package all data into dataframe and save csv's to /data
+        saveData(): Package all data into dataframe and save csv files to /data
 
     """
 
@@ -51,7 +53,8 @@ class Environment:
         """Initialise environment
         
         Parameters:
-            None
+            size(int) = length of a 'wall' of the environment
+            sim_num(int) = simulation number
 
         """
 
@@ -64,7 +67,7 @@ class Environment:
         self.agent_list = []  # create agent and food lists
         self.food_list = []
 
-        self.food_data = [] # data lists
+        self.food_data = []  # data lists
         self.agent_data = []
         self.pop_data = []
 
@@ -75,17 +78,17 @@ class Environment:
         y = np.random.uniform(0, ENV_SIZE)
         return np.asarray([x, y])
 
-    def addAgent(self, init_pos=None):
+    def addAgent(self, init_pos=None, init_speed=None):
         """Add agent into environment"""
 
         if init_pos is None:  # when pos not given
             init_pos = self.genPos()
 
-        agent = Agent(init_pos)
+        agent = Agent(init_pos, init_speed)
         self.agent_list.append(agent)
         self.num_agents = int(self.num_agents + 1)
 
-        if ANIMATE == True:
+        if ANIMATE is True:
             self.axes.add_patch(Agent.patch(agent))
 
     def getAgent(self, id):
@@ -103,7 +106,7 @@ class Environment:
         self.food_list.append(food)
         self.num_food = int(self.num_food + 1)
 
-        if ANIMATE == True:
+        if ANIMATE is True:
             self.axes.add_patch(Agent.patch(food))
 
     def populate(self):
@@ -126,7 +129,7 @@ class Environment:
                 self.num_food = int(self.num_food - 1)
                 Agent.eat(agent)
 
-        self.food_list = [food for food in self.food_list if food not in del_list_food] # new food list
+        self.food_list = [food for food in self.food_list if food not in del_list_food]  # new food list
 
     def reproduce(self, parent):
         """Check for nearby eligible agent and produce offspring"""
@@ -135,7 +138,7 @@ class Environment:
             for agent in self.agent_list:
                 if agent != parent and Agent.energy(agent) > REP_THRESHOLD * MAX_ENERGY:
                     # calculate distance between eligible agents
-                    distance = np.linalg.norm(Agent.pos(parent) - Agent.pos(agent)) 
+                    distance = np.linalg.norm(Agent.pos(parent) - Agent.pos(agent))
 
                     if distance < AGENT_SIZE:
                         chosen_parent = random.choice([agent, parent])  # Randomly chooses a parent
@@ -151,9 +154,21 @@ class Environment:
 
         child_pos = Agent.pos(parent) + np.asarray([0.01, 0.01])
         new_energy = Agent.energy(parent) - INIT_ENERGY  # energy decrease
+        speed = self.mutate(parent)
 
         Agent.setEnergy(parent, new_energy)
-        self.addAgent(init_pos=child_pos)
+        self.addAgent(init_pos=child_pos, init_speed=speed)
+
+    def mutate(self, parent):
+        """Mutate speed of offspring"""
+
+        if np.random.random() > PROB_MUTATE:  # alter speed of offspring by sampling from Poisson distribution
+            speed = Agent.speed(parent) + (np.random.poisson(2, None) + 1)  * (np.random.choice([-1, 1]))
+
+        else:
+            speed = Agent.speed(parent)
+
+        return speed
 
     def step(self):
         """Step a set time through the environment"""
@@ -178,8 +193,8 @@ class Environment:
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
         r = np.random.uniform(0.0, 1.0)
-        if r <= FOOD_SPAWN_RATE: 
-            self.addFood() # base food spawn rate
+        if r <= FOOD_SPAWN_RATE:
+            self.addFood()  # base food spawn rate
 
         self.steps += 1
 
@@ -187,8 +202,8 @@ class Environment:
         """Animate environment using matplotlib"""
 
         self.step()
-        self.step_text.set_text('Steps: '+str(self.steps))
-        self.pop_text.set_text('Population: '+str(self.num_agents))
+        self.step_text.set_text('Steps: ' + str(self.steps))
+        self.pop_text.set_text('Population: ' + str(self.num_agents))
 
         for agent in self.agent_list:
             Agent.updatePatch(agent)
@@ -204,7 +219,7 @@ class Environment:
             self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
 
             self.step_text = self.axes.text(0.4 * ENV_SIZE, 1.02 * ENV_SIZE, '')
-            self.pop_text = self.axes.text(0.4 * ENV_SIZE + 10, 1.02 * ENV_SIZE, '')
+            self.pop_text = self.axes.text(0.6 * ENV_SIZE, 1.02 * ENV_SIZE, '')
 
             self.populate()
 
@@ -224,11 +239,12 @@ class Environment:
 
                 for i in range(0, NUM_STEPS):
 
-                    if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
+                    if int(i / DATA_INTERVAL) == i / DATA_INTERVAL:
                         self.recordState()
 
                     self.step()
-                    
+                    print(i)
+
                 self.saveData()
 
             elif data == 'agents':
@@ -236,11 +252,11 @@ class Environment:
 
                 for i in range(0, NUM_STEPS):
 
-                    if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
+                    if int(i / DATA_INTERVAL) == i / DATA_INTERVAL:
                         self.recordAgents()
 
                     self.step()
-                    
+
                 self.saveData()
 
             elif data == 'pop':
@@ -248,11 +264,11 @@ class Environment:
 
                 for i in range(0, NUM_STEPS):
 
-                    if int(i/DATA_INTERVAL) == i/DATA_INTERVAL:
+                    if int(i / DATA_INTERVAL) == i / DATA_INTERVAL:
                         self.recordPop()
 
                     self.step()
-                    
+
                 self.saveData()
 
             else:
@@ -265,12 +281,13 @@ class Environment:
             pos = Agent.pos(agent)
             energy = Agent.energy(agent)
             id = Agent.id(agent)
+            speed = Agent.speed(agent)
 
             energy_rounded = np.round(energy, 3)
             x_rounded = np.round(pos[0], 3)
             y_rounded = np.round(pos[1], 3)
 
-            self.agent_data.append([self.steps, id, x_rounded, y_rounded, energy_rounded])
+            self.agent_data.append([self.steps, id, x_rounded, y_rounded, energy_rounded, speed])
 
     def recordPop(self):
         """Append population data to pop_data"""
@@ -300,25 +317,25 @@ class Environment:
 
         # dataframes 
         agent_df = pd.DataFrame(data=self.agent_data,
-            columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy'])
-        pop_df = pd.DataFrame(data=self.pop_data, 
-            columns=['Time Elapsed/s', 'Agent Population', 'Food Population'])
+                                columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy', 'Speed'])
+        pop_df = pd.DataFrame(data=self.pop_data,
+                              columns=['Time Elapsed/s', 'Agent Population', 'Food Population'])
         food_df = pd.DataFrame(data=self.food_data,
-            columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
+                               columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
 
-        filename = str(self.size)+'_'+str(self.sim_num)
+        filename = str(self.size) + '_' + str(self.sim_num)
 
         if agent_df.shape[0] > 10:
-             agent_df.to_csv(
-                f"computational-evolution/data/Agent_Data_{filename}.csv",
+            agent_df.to_csv(
+                f"C:/Users/alyss/computational-evolution/computational-evolution/data/Agent_Data_{filename}.csv",
                 index=False)
-        
-        if pop_df.shape[0] > 10: 
+
+        if pop_df.shape[0] > 10:
             pop_df.to_csv(
-                f"computational-evolution/data/Population_Data_{filename}.csv",
+                f"C:/Users/alyss/computational-evolution/computational-evolution/data/Population_Data_{filename}.csv",
                 index=False)
-            
+
         if food_df.shape[0] > 10:
             food_df.to_csv(
-                f"computational-evolution/data/Food_Data_{filename}.csv",
+                f"C:/Users/alyss/computational-evolution/computational-evolution/data/Food_Data_{filename}.csv",
                 index=False)
