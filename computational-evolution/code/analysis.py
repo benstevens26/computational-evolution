@@ -15,7 +15,7 @@ import os
 
 # import all data from folder
 
-def importData(folder_path = 'computational-evolution/Data'):
+def importData(folder_path = 'C:/Users/alyss/computational-evolution/computational-evolution/Data'):
     """Import all csv files, unpack into dataframes, and return dictionary"""
 
     csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
@@ -31,20 +31,32 @@ def importData(folder_path = 'computational-evolution/Data'):
 
 dataframes = importData()
 
-df_pop_20 = [df for df in dataframes if df.startswith('Population')]
+# df_pop_20 = [df for df in dataframes if df.startswith('Population')]
 
-df_pop = dataframes['Population_Data_50224']
+df_agent = dataframes['Agent_Data_4000_1']
+
+df_agent = df_agent[['Time Elapsed/s', 'Speed']]
+df_agent = df_agent.groupby(['Time Elapsed/s'], as_index=False).mean()
+
+mean_s = df_agent['Speed']
+time = df_agent['Time Elapsed/s']
+
+plt.grid()
+plt.plot(time, mean_s, color='green')
+plt.xlabel('Time Elapsed (s)')
+plt.ylabel('Mean Speed')
+plt.show()
           
 
-y1 = df_pop['Agent Population']
-y2 = df_pop['Food Population']
-x = df_pop['Time Elapsed/s']
-
-plt.figure()
-
-plt.plot(x, y1, 'go', markersize=1, label='Agent Population')
-plt.plot(x, y2, 'ro', markersize=1, label='Food Population')
-
-
-plt.legend()
-plt.show()
+# y1 = df_pop['Agent Population']
+# y2 = df_pop['Food Population']
+# x = df_pop['Time Elapsed/s']
+#
+# plt.figure()
+#
+# plt.plot(x, y1, 'go', markersize=1, label='Agent Population')
+# plt.plot(x, y2, 'ro', markersize=1, label='Food Population')
+#
+#
+# plt.legend()
+# plt.show()
