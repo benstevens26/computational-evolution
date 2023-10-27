@@ -118,7 +118,7 @@ class Agent:
 
         if not 0 < new_pos[1] <= ENV_SIZE:
             new_pos[1] = new_pos[1] % ENV_SIZE
-            delta_x = new_pos[1] - self.pos[1]
+            delta_y = new_pos[1] - self.pos[1]
 
         return delta_x, delta_y
 
