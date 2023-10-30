@@ -66,5 +66,5 @@ class Food:
 
     def removePatch(self):
         """Remove patch attribute"""
-        self.patch.center = np.asarray([500, 500]) # CHANGE this #
+        self.patch.set_visible(False)
 
