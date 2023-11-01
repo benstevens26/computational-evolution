@@ -70,6 +70,7 @@ class Environment:
         self.food_data = []  # data lists
         self.agent_data = []
         self.pop_data = []
+        self.mutation_count = 0
 
     def genPos(self):
         """Return a random position within environment"""
@@ -78,13 +79,13 @@ class Environment:
         y = np.random.uniform(0, ENV_SIZE)
         return np.asarray([x, y])
 
-    def addAgent(self, init_pos=None, init_speed=None):
+    def addAgent(self, init_pos=None, init_speed=None, init_size=None):
         """Add agent into environment"""
 
         if init_pos is None:  # when pos not given
             init_pos = self.genPos()
 
-        agent = Agent(init_pos, init_speed)
+        agent = Agent(init_pos, init_speed) # , init_size)
         self.agent_list.append(agent)
         self.num_agents = int(self.num_agents + 1)
 
@@ -122,7 +123,7 @@ class Environment:
 
         del_list_food = []
         for food in self.food_list:
-            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) < (AGENT_SIZE + FOOD_SIZE):
+            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) < (AGENT_SIZE + FOOD_SIZE): # (Agent.size(agent) + FOOD_SIZE):
                 Food.removePatch(food)  # remove food patch
                 del_list_food.append(food)
 
@@ -157,23 +158,36 @@ class Environment:
         speed = self.mutate(parent)
 
         Agent.setEnergy(parent, new_energy)
-        self.addAgent(init_pos=child_pos, init_speed=speed)
+        self.addAgent(init_pos=child_pos, init_speed=speed) # , init_size=size)
 
     def mutate(self, parent):
         """Mutate speed of offspring"""
 
-        if np.random.random() > PROB_MUTATE:  # alter speed of offspring by sampling from Poisson distribution
-            speed = Agent.speed(parent) + (np.random.poisson(2, None) + 1)  * (np.random.choice([-1, 1]))
+        if np.random.random() < PROB_MUTATE:  # alter speed of offspring by sampling from Poisson distribution
+            #mutation = np.random.choice(['size', 'speed'])
+            self.mutation_count += 1
+
+          #  if mutation == 'speed':
+            speed = Agent.speed(parent) + (np.random.poisson(5, None) + 1) * (np.random.choice([-1, 1]))
+            if speed < 0:
+                speed = 0
+                # size = Agent.size(parent)
+
+          #  elif mutation == 'size':
+              #  size = Agent.size(parent) + (np.random.poisson(2, None) + 1) * (np.random.choice([-1, 1]))
+              #  speed = Agent.speed(parent)
 
         else:
             speed = Agent.speed(parent)
+            #size = Agent.size(parent)
 
-        return speed
+        return speed #, size
 
     def step(self):
         """Step a set time through the environment"""
 
         if self.num_agents == 0:
+            self.saveData()
             raise Exception("No agents remaining -> stopping simulation")
 
         del_list_agent = []
@@ -214,7 +228,7 @@ class Environment:
     def run(self, data='all'):
         """Run simulation for NUM_FRAMES"""
 
-        if ANIMATE == True:
+        if ANIMATE is True:
             self.fig = plt.figure('Environment', figsize=(6, 6))
             self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
 
@@ -282,6 +296,7 @@ class Environment:
             energy = Agent.energy(agent)
             id = Agent.id(agent)
             speed = Agent.speed(agent)
+            #size = Agent.size(agent)
 
             energy_rounded = np.round(energy, 3)
             x_rounded = np.round(pos[0], 3)
@@ -313,7 +328,7 @@ class Environment:
         self.recordPop()
 
     def saveData(self):
-        """Package all data into dataframe and save csv's to /data"""
+        """Package all data into dataframe and save csvs to /data"""
 
         # dataframes 
         agent_df = pd.DataFrame(data=self.agent_data,
@@ -323,19 +338,22 @@ class Environment:
         food_df = pd.DataFrame(data=self.food_data,
                                columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
 
-        filename = str(self.size) + '_' + str(self.sim_num)
+        filename = 'base_rate_' + str(BASE_LOSS) + '_' + str(self.sim_num)
 
         if agent_df.shape[0] > 10:
             agent_df.to_csv(
-                f"C:/Users/alyss/computational-evolution/computational-evolution/data/Agent_Data_{filename}.csv",
+                f"C:/Users/alyss/OneDrive/Documents/GitHub/computational-evolution/computational-evolution/data"
+                f"/Agent_Data_{filename}.csv",
                 index=False)
 
         if pop_df.shape[0] > 10:
             pop_df.to_csv(
-                f"C:/Users/alyss/computational-evolution/computational-evolution/data/Population_Data_{filename}.csv",
+                f"C:/Users/alyss/OneDrive/Documents/GitHub/computational-evolution/computational-evolution/data"
+                f"/Population_Data_{filename}.csv",
                 index=False)
 
         if food_df.shape[0] > 10:
             food_df.to_csv(
-                f"C:/Users/alyss/computational-evolution/computational-evolution/data/Food_Data_{filename}.csv",
+                f"C:/Users/alyss/OneDrive/Documents/GitHub/computational-evolution/computational-evolution/data"
+                f"/Food_Data_{filename}.csv",
                 index=False)
