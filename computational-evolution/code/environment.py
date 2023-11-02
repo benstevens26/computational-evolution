@@ -85,7 +85,7 @@ class Environment:
         if init_pos is None:  # when pos not given
             init_pos = self.genPos()
 
-        agent = Agent(init_pos, init_speed) # , init_size)
+        agent = Agent(init_pos, init_speed, init_size)
         self.agent_list.append(agent)
         self.num_agents = int(self.num_agents + 1)
 
@@ -123,7 +123,7 @@ class Environment:
 
         del_list_food = []
         for food in self.food_list:
-            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) < (AGENT_SIZE + FOOD_SIZE): # (Agent.size(agent) + FOOD_SIZE):
+            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) <  (Agent.size(agent) + FOOD_SIZE):
                 Food.removePatch(food)  # remove food patch
                 del_list_food.append(food)
 
@@ -155,33 +155,33 @@ class Environment:
 
         child_pos = Agent.pos(parent) + np.asarray([0.01, 0.01])
         new_energy = Agent.energy(parent) - INIT_ENERGY  # energy decrease
-        speed = self.mutate(parent)
+        speed, size = self.mutate(parent)
 
         Agent.setEnergy(parent, new_energy)
-        self.addAgent(init_pos=child_pos, init_speed=speed) # , init_size=size)
+        self.addAgent(init_pos=child_pos, init_speed=speed, init_size=size)
 
     def mutate(self, parent):
         """Mutate speed of offspring"""
 
         if np.random.random() < PROB_MUTATE:  # alter speed of offspring by sampling from Poisson distribution
-            #mutation = np.random.choice(['size', 'speed'])
+            mutation = np.random.choice(['size', 'speed'])
             self.mutation_count += 1
 
-          #  if mutation == 'speed':
-            speed = Agent.speed(parent) + (np.random.poisson(5, None) + 1) * (np.random.choice([-1, 1]))
+            if mutation == 'speed':
+                speed = Agent.speed(parent) + (np.random.poisson(5, None) + 1) * (np.random.choice([-1, 1]))
             if speed < 0:
                 speed = 0
-                # size = Agent.size(parent)
+                size = Agent.size(parent)
 
-          #  elif mutation == 'size':
-              #  size = Agent.size(parent) + (np.random.poisson(2, None) + 1) * (np.random.choice([-1, 1]))
-              #  speed = Agent.speed(parent)
+            elif mutation == 'size':
+               size = Agent.size(parent) + (np.random.poisson(2, None) + 1) * (np.random.choice([-1, 1]))
+               speed = Agent.speed(parent)
 
         else:
             speed = Agent.speed(parent)
-            #size = Agent.size(parent)
+            size = Agent.size(parent)
 
-        return speed #, size
+        return speed, size
 
     def step(self):
         """Step a set time through the environment"""
@@ -296,13 +296,13 @@ class Environment:
             energy = Agent.energy(agent)
             id = Agent.id(agent)
             speed = Agent.speed(agent)
-            #size = Agent.size(agent)
+            size = Agent.size(agent)
 
             energy_rounded = np.round(energy, 3)
             x_rounded = np.round(pos[0], 3)
             y_rounded = np.round(pos[1], 3)
 
-            self.agent_data.append([self.steps, id, x_rounded, y_rounded, energy_rounded, speed])
+            self.agent_data.append([self.steps, id, x_rounded, y_rounded, energy_rounded, speed, size])
 
     def recordPop(self):
         """Append population data to pop_data"""
@@ -332,7 +332,7 @@ class Environment:
 
         # dataframes 
         agent_df = pd.DataFrame(data=self.agent_data,
-                                columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy', 'Speed'])
+                                columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy', 'Speed', 'Size'])
         pop_df = pd.DataFrame(data=self.pop_data,
                               columns=['Time Elapsed/s', 'Agent Population', 'Food Population'])
         food_df = pd.DataFrame(data=self.food_data,

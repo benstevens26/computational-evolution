@@ -40,7 +40,7 @@ class Agent:
 
     """
 
-    def __init__(self, pos, speed=None): #, size=None):
+    def __init__(self, pos, speed=None, size=None):
         """Initialise agent
         
         Parameters:
@@ -56,15 +56,15 @@ class Agent:
         else:
             self.speed = speed
 
-        # if size is None:
-        #     self.size = np.random.randint(50, 150)  # initiate agents with integer size between 50-150
-        # else:
-        #     self.size = size
+        if size is None:
+            self.size = np.random.randint(50, 150)  # initiate agents with integer size between 50-150
+        else:
+            self.size = size
 
         self.pos = pos  # assign position, energy, and direction
         self.energy = INIT_ENERGY
         self.direction = np.random.uniform(-np.pi, np.pi)
-        self.patch = patches.Circle(pos, AGENT_SIZE, fc='g') # self.patch = patches.Circle(pos, self.size, fc='g')
+        self.patch = patches.Circle(pos, self.size, fc='g') # self.patch = patches.Circle(pos, AGENT_SIZE, fc='g') #
 
     def pos(self):
         """Return agent position"""
@@ -85,9 +85,9 @@ class Agent:
         """Return agent energy"""
         return self.energy
 
-    # def size(self):
-    #     """Return agent size"""
-    #     return self.size
+    def size(self):
+        """Return agent size"""
+        return self.size
 
     def setEnergy(self, new_energy):
         """Set agent energy"""
@@ -138,7 +138,7 @@ class Agent:
         dx, dy = self.randWalk(t)  # generate dx, dy
         self.pos += np.asarray([dx, dy])  # update position
 
-        energy_loss = ((t * self.speed**2) / 100) + BASE_LOSS #* self.size
+        energy_loss = ((t * self.speed**2) / 100) * self.size + BASE_LOSS
         self.energy = self.energy - energy_loss  # update energy
 
     def updatePatch(self):
