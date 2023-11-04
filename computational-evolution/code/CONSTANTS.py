@@ -17,10 +17,10 @@ INIT_NUM_FOOD = 20
 TIME_STEP = 0.1
 NUM_STEPS = 75000  # NUM_STEPS * TIME_STEP = TOTAL_TIME
 DATA_INTERVAL = 10  # number of steps between data collection
-ANIMATE = False
+ANIMATE = True
 
 # food related constants
 FOOD_SIZE = 50
 FOOD_SPAWN_RATE = 0.05
 
-BASE_LOSS = TIME_STEP*45
+BASE_LOSS = TIME_STEP*10

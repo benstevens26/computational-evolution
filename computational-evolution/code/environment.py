@@ -225,6 +225,16 @@ class Environment:
         for food in self.food_list:
             Food.updatePatch(food)
 
+    def update(self, i):
+        self.step()
+        self.ax.clear()
+
+        self.step_text1.set_text('Steps: ' + str(self.steps))
+        self.pop_text1.set_text('Population: ' + str(self.num_agents))
+
+        for agent in self.agent_list:
+            self.ax.scatter(Agent.speed(agent), Agent.size(agent))
+
     def run(self, data='all'):
         """Run simulation for NUM_FRAMES"""
 
@@ -235,10 +245,23 @@ class Environment:
             self.step_text = self.axes.text(0.4 * ENV_SIZE, 1.02 * ENV_SIZE, '')
             self.pop_text = self.axes.text(0.6 * ENV_SIZE, 1.02 * ENV_SIZE, '')
 
+            self.fig1 = plt.figure(figsize=(7, 7))
+            self.ax = plt.axes(xlim=(0, 150), ylim=(0, 150))
+
+            self.step_text1 = self.ax.text(50, 200, '')
+            self.pop_text1 = self.ax.text(55, 200, '')
+
             self.populate()
 
             anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_STEPS, repeat=False,
                                            interval=10)  # 10x speed
+
+
+            for agent in self.agent_list:
+                self.ax.scatter(Agent.speed(agent), Agent.size(agent))
+
+            anim2 = animation.FuncAnimation(self.fig1, self.update, frames=NUM_STEPS, interval=10, repeat=False)
+
             plt.show()
 
         else:
