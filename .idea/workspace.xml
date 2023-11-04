@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d10d0fed-6211-4ec8-a761-00ed3b7cb8f0" name="Changes" comment="new version">
+    <list default="true" id="d10d0fed-6211-4ec8-a761-00ed3b7cb8f0" name="Changes" comment="genespace animation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/computational-evolution/code/CONSTANTS.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/CONSTANTS.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/computational-evolution/code/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/agent.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/computational-evolution/code/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/computational-evolution/code/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/environment.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -16,7 +13,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="aly" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -94,7 +91,6 @@
       <option name="project" value="LOCAL" />
       <updated>1698668015640</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
     <task id="LOCAL-00007" summary="contains mass/size code">
       <created>1698858554062</created>
       <option name="number" value="00007" />
@@ -137,7 +133,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699117026251</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="genespace animation">
+      <created>1699117273888</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1699117273888</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -154,7 +157,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="aly1" />
+                        <option value="aly" />
                       </list>
                     </value>
                   </entry>
@@ -171,6 +174,7 @@
     <MESSAGE value="update" />
     <MESSAGE value="fixed mod method" />
     <MESSAGE value="new version" />
-    <option name="LAST_COMMIT_MESSAGE" value="new version" />
+    <MESSAGE value="genespace animation" />
+    <option name="LAST_COMMIT_MESSAGE" value="genespace animation" />
   </component>
 </project>

@@ -13,10 +13,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.animation as animation
+
 from CONSTANTS import *
 from agent import Agent
 from food import Food
+
 import pandas as pd
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.figure import Figure
 
 
 class Environment:
@@ -123,7 +129,7 @@ class Environment:
 
         del_list_food = []
         for food in self.food_list:
-            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) <  (Agent.size(agent) + FOOD_SIZE):
+            if np.linalg.norm(Agent.pos(agent) - Food.pos(food)) < (Agent.size(agent) + FOOD_SIZE):
                 Food.removePatch(food)  # remove food patch
                 del_list_food.append(food)
 
@@ -169,13 +175,13 @@ class Environment:
 
             if mutation == 'speed':
                 speed = Agent.speed(parent) + (np.random.poisson(5, None) + 1) * (np.random.choice([-1, 1]))
-            if speed < 0:
-                speed = 0
+                if speed < 0:
+                    speed = 0
                 size = Agent.size(parent)
 
             elif mutation == 'size':
-               size = Agent.size(parent) + (np.random.poisson(2, None) + 1) * (np.random.choice([-1, 1]))
-               speed = Agent.speed(parent)
+                size = Agent.size(parent) + (np.random.poisson(2, None) + 1) * (np.random.choice([-1, 1]))
+                speed = Agent.speed(parent)
 
         else:
             speed = Agent.speed(parent)
@@ -226,43 +232,58 @@ class Environment:
             Food.updatePatch(food)
 
     def update(self, i):
+        """Animate genespace using matplotlib"""
+
         self.step()
         self.ax.clear()
+
+        self.ax.set_xlim(0, 150)
+        self.ax.set_ylim(0, 150)
+        self.ax.set_xlabel('Speed')
+        self.ax.set_ylabel('Size')
+
+        self.step_text1 = self.ax.text(0.4 * 150, 1.02 * 150, '')
+        self.pop_text1 = self.ax.text(0.6 * 150, 1.02 * 150, '')
+        self.fig1_title = self.ax.text(0.35 * 150, 1.05 * 150, 'Genespace')
 
         self.step_text1.set_text('Steps: ' + str(self.steps))
         self.pop_text1.set_text('Population: ' + str(self.num_agents))
 
         for agent in self.agent_list:
-            self.ax.scatter(Agent.speed(agent), Agent.size(agent))
+            self.ax.scatter(Agent.speed(agent), Agent.size(agent), color='pink', s=50)
 
     def run(self, data='all'):
         """Run simulation for NUM_FRAMES"""
 
         if ANIMATE is True:
-            self.fig = plt.figure('Environment', figsize=(6, 6))
+            self.window = tk.Tk()
+            self.window.title('Simulation Animations')
+            self.window.geometry('1200x600')
+
+            self.fig = plt.figure(figsize=(6, 6))
             self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
 
             self.step_text = self.axes.text(0.4 * ENV_SIZE, 1.02 * ENV_SIZE, '')
             self.pop_text = self.axes.text(0.6 * ENV_SIZE, 1.02 * ENV_SIZE, '')
+            self.fig_title = self.axes.text(0.35 * ENV_SIZE, 1.05 * ENV_SIZE, 'Environment')
 
-            self.fig1 = plt.figure(figsize=(7, 7))
+            self.fig1 = plt.figure(figsize=(6, 6))
             self.ax = plt.axes(xlim=(0, 150), ylim=(0, 150))
 
-            self.step_text1 = self.ax.text(50, 200, '')
-            self.pop_text1 = self.ax.text(55, 200, '')
+            self.canvas1 = FigureCanvasTkAgg(self.fig, self.window)
+            self.canvas2 = FigureCanvasTkAgg(self.fig1, self.window)
+
+            self.canvas1.get_tk_widget().grid(column=0, row=1)
+            self.canvas2.get_tk_widget().grid(column=1, row=1)
 
             self.populate()
 
             anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_STEPS, repeat=False,
                                            interval=10)  # 10x speed
 
-
-            for agent in self.agent_list:
-                self.ax.scatter(Agent.speed(agent), Agent.size(agent))
-
             anim2 = animation.FuncAnimation(self.fig1, self.update, frames=NUM_STEPS, interval=10, repeat=False)
 
-            plt.show()
+            tk.mainloop()
 
         else:
             if data == 'none':
