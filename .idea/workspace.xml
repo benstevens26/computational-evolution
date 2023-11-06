@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d10d0fed-6211-4ec8-a761-00ed3b7cb8f0" name="Changes" comment="genespace animation">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/computational-evolution/code/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/environment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/analysis.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
