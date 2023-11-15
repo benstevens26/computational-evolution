@@ -59,7 +59,7 @@ class Environment:
         self.mutation_count = 0
         self.food_spawn_rate = FOOD_SPAWN_RATE
         self.size = ENV_SIZE
-        self.animation = None
+        self.animate = None
         self.mutation_rate = PROB_MUTATE
         self.mutation_size = 5
 
@@ -87,8 +87,8 @@ class Environment:
         self.agent_list.append(agent)
         self.num_agents += 1
 
-        if self.animation:
-            self.axes.add_patch(agent.get_patch())
+        if self.animate:
+            self.axes.add_patch(agent.patch)
 
     def get_agent(self, agent_id):
         """Return agent with a given id"""
@@ -105,18 +105,16 @@ class Environment:
         self.food_list.append(food)
         self.num_food += 1
 
-        if self.animation:
-            self.axes.add_patch(food.get_patch())
+        if self.animate:
+            self.axes.add_patch(food.patch)
 
     def populate(self, init_agents, init_food):
         """Populate the environment with agents and food"""
 
         for i in range(0, init_agents):
             self.add_agent()
-            self.num_agents += 1
         for i in range(0, init_food):
             self.add_food()
-            self.num_food += 1
 
     def eat_check(self, agent):
         """Check for food nearby agent and eat"""
@@ -190,13 +188,18 @@ class Environment:
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
-        r = np.random.random()
-        if r < FOOD_SPAWN_RATE:
-            self.add_food()
+        # r = np.random.random()
+        # if r < FOOD_SPAWN_RATE:
+        #     self.add_food()
+
+        if not self.food_spawn_rate == 0:
+            if self.step_count % np.reciprocal(self.food_spawn_rate) == 0:
+                self.add_food()
+
 
         self.step_count += 1
 
-    def animate(self, i):
+    def update(self, i):
         """Animate environment using matplotlib"""
 
         self.step()
@@ -211,18 +214,22 @@ class Environment:
 
     def run(self, num_steps, animate=False, take_data=True):
         """Run simulation for num_steps"""
-        self.animation = animate
+        self.animate = animate
 
-        if self.animation:
+        if self.animate:
             self.fig = plt.figure(figsize=(6, 6))
             self.axes = plt.axes(xlim=(0, self.size), ylim=(0, self.size))
-
             self.step_text = self.axes.text(0.4 * self.size, 1.02 * self.size, '')
             self.pop_text = self.axes.text(0.6 * self.size, 1.02 * self.size, '')
             self.fig_title = self.axes.text(0.35 * self.size, 1.05 * self.size, 'Environment')
 
-            anim = animation.FuncAnimation(self.fig, self.animate, frames=num_steps, repeat=False,
-                                           interval=10)  # 10x speed
+            for agent in self.agent_list:
+                self.axes.add_patch(agent.patch)
+            for food in self.food_list:
+                self.axes.add_patch(food.patch)
+
+            anim = animation.FuncAnimation(self.fig, self.update, frames=num_steps, repeat=False,
+                                           interval=10)
             plt.show()
             return
 

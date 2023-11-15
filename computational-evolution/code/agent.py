@@ -25,12 +25,11 @@ class Agent:
         direction (float): Direction of agent
     """
 
-    def __init__(self, pos, speed=None, size=None):
+    def __init__(self, pos, speed=None, size=None, energy=None):
         """Initialise agent
 
         """
 
-        # assign attributes to agent instance
         if isinstance(pos, list):
             pos = np.asarray(pos)
 
@@ -44,10 +43,14 @@ class Agent:
         else:
             self.size = size
 
+        if energy is None:
+            self.energy = INIT_ENERGY
+        else:
+            self.energy = energy
+
         self.pos = pos
-        self.energy = INIT_ENERGY
         self.direction = np.random.uniform(-np.pi, np.pi)
-        self.patch = patches.Circle(pos, self.size, fc='g')
+        self.patch = patches.Circle(self.pos, self.size, fc='g')
         self.rep_threshold = REP_THRESHOLD
 
     def get_pos(self):
@@ -87,7 +90,7 @@ class Agent:
     def eat_food(self, food):
         """Increase agent energy by energy of food"""
         eat_energy = food.energy
-        new_energy = self.get_energy() - eat_energy
+        new_energy = self.get_energy() + eat_energy
         self.set_energy(new_energy)
 
         if self.energy > MAX_ENERGY:
@@ -139,8 +142,7 @@ class Agent:
 
     def update_patch(self):
         """Update patch attribute centre"""
-
-        self.patch.set_center((self.pos[0], self.pos[1]))
+        self.patch.center = self.pos
 
     def remove_patch(self):
         """Remove patch attribute"""

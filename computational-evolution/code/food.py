@@ -31,9 +31,10 @@ class Food:
             pos = np.asarray(pos)
 
         self.pos = pos
-        self.energy = EAT_ENERGY
-        self.patch = patches.Circle(pos, FOOD_SIZE, fc='r')
         self.size = FOOD_SIZE
+        self.energy = EAT_ENERGY
+        self.patch = patches.Circle(self.pos, self.size, fc='r')
+
 
     def get_pos(self):
         """Return food position"""
@@ -64,7 +65,7 @@ class Food:
 
     def update_patch(self):
         """Update patch attribute centre"""
-        self.patch.set_center(self.pos)
+        self.patch.center = self.pos
 
     def remove_patch(self):
         """Remove patch attribute"""
