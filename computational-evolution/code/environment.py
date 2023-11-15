@@ -332,7 +332,7 @@ class Environment:
         pop_df.to_csv(f"{data_file_path}/pop_data_{self.sim_name}.csv",
                       index=False)
 
-        food_df.to_csv(f"{data_file_path}/food_data{self.sim_name}.csv",
+        food_df.to_csv(f"{data_file_path}/food_data_{self.sim_name}.csv",
                        index=False)
 
 
