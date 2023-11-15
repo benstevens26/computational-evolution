@@ -17,7 +17,8 @@ INIT_NUM_FOOD = 20
 TIME_STEP = 0.1
 NUM_STEPS = 75000  # NUM_STEPS * TIME_STEP = TOTAL_TIME
 DATA_INTERVAL = 10  # number of steps between data collection
-ANIMATE = True
+ANIMATE = False
+CONTINUATION = False
 
 # food related constants
 FOOD_SIZE = 50

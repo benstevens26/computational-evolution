@@ -17,6 +17,6 @@ from time import time
 
 # print('TOTAL TIME',time()-total_t)
 
-env = Environment(sim_num=1)
+env = Environment(sim_num=3)
 
 env.run()

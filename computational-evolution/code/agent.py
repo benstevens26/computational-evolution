@@ -40,7 +40,7 @@ class Agent:
 
     """
 
-    def __init__(self, pos, speed=None, size=None):
+    def __init__(self, pos, speed=None, size=None, energy=None):
         """Initialise agent
         
         Parameters:
@@ -61,8 +61,15 @@ class Agent:
         else:
             self.size = size
 
+        if energy is None:
+            self.energy = INIT_ENERGY
+        else:
+            self.energy = energy
+
+        # self.speed = 100
+        # self.size = 100
+
         self.pos = pos  # assign position, energy, and direction
-        self.energy = INIT_ENERGY
         self.direction = np.random.uniform(-np.pi, np.pi)
         self.patch = patches.Circle(pos, self.size, fc='g') # self.patch = patches.Circle(pos, AGENT_SIZE, fc='g') #
 

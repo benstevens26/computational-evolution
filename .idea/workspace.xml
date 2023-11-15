@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d10d0fed-6211-4ec8-a761-00ed3b7cb8f0" name="Changes" comment="genespace animation">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="d10d0fed-6211-4ec8-a761-00ed3b7cb8f0" name="Changes" comment="animation in data analysis">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/CONSTANTS.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/CONSTANTS.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/computational-evolution/code/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/environment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/testing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +144,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699117273888</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="animation in data analysis">
+      <created>1699275031901</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1699275031901</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -176,6 +186,7 @@
     <MESSAGE value="fixed mod method" />
     <MESSAGE value="new version" />
     <MESSAGE value="genespace animation" />
-    <option name="LAST_COMMIT_MESSAGE" value="genespace animation" />
+    <MESSAGE value="animation in data analysis" />
+    <option name="LAST_COMMIT_MESSAGE" value="animation in data analysis" />
   </component>
 </project>
