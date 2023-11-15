@@ -16,6 +16,7 @@ import matplotlib.animation as animation
 from CONSTANTS import *
 from agent import Agent
 from food import Food
+import os
 import pandas as pd
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -67,6 +68,13 @@ class Environment:
         """Set environment size"""
         self.size = size
 
+    def gen_pos_food(self):
+        """Return a random position within environment"""
+
+        x = np.random.uniform(0, ENV_SIZE)
+        y = np.random.uniform(0, ENV_SIZE)
+        return np.asarray([x, y])
+
     def set_food_spawn_rate(self, spawn_rate):
         self.food_spawn_rate = spawn_rate
 
@@ -83,7 +91,7 @@ class Environment:
         if init_pos is None:
             init_pos = self.gen_pos()
 
-        agent = Agent(init_pos, init_speed, init_size)
+        agent = Agent(init_pos, init_speed, init_size, init_energy)
         self.agent_list.append(agent)
         self.num_agents += 1
 
@@ -96,8 +104,10 @@ class Environment:
             if Agent.get_id(agent) == id:
                 return agent
 
-    def add_food(self):
+    def add_food(self, init_pos=None):
         """Add food into environment"""
+        if init_pos is None:
+            init_pos = self.gen_pos_food()
 
         init_pos = self.gen_pos()
         food = Food(init_pos)
@@ -108,15 +118,46 @@ class Environment:
         if self.animation:
             self.axes.add_patch(Food.get_patch())
 
+    def importdata(self, folder_path=r"C:\Users\alyss\OneDrive\Documents\Year 3 Physics\Project Data\data"):
+        """Import all csv files, unpack into dataframes, and return dictionary"""
+
+        csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
+        dataframes = {}
+
+        for csv_file in csv_files:
+            file_path = os.path.join(folder_path, csv_file)
+            dataframes[csv_file.split('.')[0]] = pd.read_csv(file_path)
+
+        return dataframes
+
     def populate(self, init_agents, init_food):
         """Populate the environment with agents and food"""
 
-        for i in range(0, init_agents):
-            self.add_agent()
-            self.num_agents += 1
-        for i in range(0, init_food):
-            self.add_food()
-            self.num_food += 1
+        if CONTINUATION:
+            dataframes = self.importdata()
+            agents = dataframes['Agent_Data_mutation_1']
+            food = dataframes['Food_Data_mutation_1']
+            last_time = agents['Time Elapsed/s'].iloc[-1]
+
+            agents = agents[agents['Time Elapsed/s'] == last_time]
+            food = food[food['Time Elapsed'] == last_time]
+
+            for i in range(len(agents)):
+                position = (agents['X-Coord'].iloc[i], agents['Y-Coord'].iloc[i])
+                self.addAgent(init_pos=position, init_size=agents['Size'].iloc[i], init_speed=agents['Speed'].iloc[i],
+                              init_energy=agents['Energy'].iloc[i])
+
+            for i in range(len(food)):
+                position = (food['X-Coord'].iloc[i], food['Y-Coord'].iloc[i])
+                self.addFood(init_pos=position)
+
+        else:
+            for i in range(0, INIT_NUM_AGENTS):
+                self.add_agent()
+                self.num_agents += 1
+            for i in range(0, INIT_NUM_FOOD):
+                self.add_food()
+                self.num_food += 1
 
     def eat_check(self, agent):
         """Check for food nearby agent and eat"""
@@ -192,7 +233,7 @@ class Environment:
 
         r = np.random.random()
         if r < FOOD_SPAWN_RATE:
-            self.add_food()
+            self.add_food(init_pos=None)
 
         self.step_count += 1
 
