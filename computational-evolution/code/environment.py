@@ -88,7 +88,7 @@ class Environment:
         self.num_agents += 1
 
         if self.animation:
-            self.axes.add_patch(Agent.get_patch(agent))
+            self.axes.add_patch(agent.get_patch())
 
     def get_agent(self, agent_id):
         """Return agent with a given id"""
@@ -106,7 +106,7 @@ class Environment:
         self.num_food += 1
 
         if self.animation:
-            self.axes.add_patch(Food.get_patch())
+            self.axes.add_patch(food.get_patch())
 
     def populate(self, init_agents, init_food):
         """Populate the environment with agents and food"""
@@ -149,7 +149,7 @@ class Environment:
 
         if np.random.random() < self.mutation_rate:  # speed mutation
             self.mutation_count += 1
-            mutation =  np.random.poisson(self.mutation_size, None)
+            mutation = np.random.poisson(self.mutation_size, None)
             while mutation == 0:
                 mutation = np.random.poisson(self.mutation_size, None)
 
@@ -209,61 +209,21 @@ class Environment:
         for food in self.food_list:
             food.update_patch()
 
-    def update(self, i):
-        """Animate genespace using matplotlib"""
-
-        self.step()
-        self.ax.clear()
-
-        self.ax.set_xlim(0, 150)
-        self.ax.set_ylim(0, 150)
-        self.ax.set_xlabel('Speed')
-        self.ax.set_ylabel('Size')
-
-        self.step_text1 = self.ax.text(0.4 * 150, 1.02 * 150, '')
-        self.pop_text1 = self.ax.text(0.6 * 150, 1.02 * 150, '')
-        self.fig1_title = self.ax.text(0.35 * 150, 1.05 * 150, 'Genespace')
-
-        self.step_text1.set_text('Steps: ' + str(self.steps))
-        self.pop_text1.set_text('Population: ' + str(self.num_agents))
-
-        for agent in self.agent_list:
-            self.ax.scatter(Agent.speed(agent), Agent.size(agent), color='pink', s=50)
-
     def run(self, num_steps, animate=False, take_data=True):
         """Run simulation for num_steps"""
         self.animation = animate
 
         if self.animation:
-
-            self.window = tk.Tk()
-            self.window.title('Simulation Animations')
-            self.window.geometry('1200x600')
-
             self.fig = plt.figure(figsize=(6, 6))
-            self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
+            self.axes = plt.axes(xlim=(0, self.size), ylim=(0, self.size))
 
-            self.step_text = self.axes.text(0.4 * ENV_SIZE, 1.02 * ENV_SIZE, '')
-            self.pop_text = self.axes.text(0.6 * ENV_SIZE, 1.02 * ENV_SIZE, '')
-            self.fig_title = self.axes.text(0.35 * ENV_SIZE, 1.05 * ENV_SIZE, 'Environment')
+            self.step_text = self.axes.text(0.4 * self.size, 1.02 * self.size, '')
+            self.pop_text = self.axes.text(0.6 * self.size, 1.02 * self.size, '')
+            self.fig_title = self.axes.text(0.35 * self.size, 1.05 * self.size, 'Environment')
 
-            self.fig1 = plt.figure(figsize=(6, 6))
-            self.ax = plt.axes(xlim=(0, 150), ylim=(0, 150))
-
-            self.canvas1 = FigureCanvasTkAgg(self.fig, self.window)
-            self.canvas2 = FigureCanvasTkAgg(self.fig1, self.window)
-
-            self.canvas1.get_tk_widget().grid(column=0, row=1)
-            self.canvas2.get_tk_widget().grid(column=1, row=1)
-
-            self.populate()
-
-            anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_STEPS, repeat=False,
+            anim = animation.FuncAnimation(self.fig, self.animate, frames=num_steps, repeat=False,
                                            interval=10)  # 10x speed
-
-            anim2 = animation.FuncAnimation(self.fig1, self.update, frames=NUM_STEPS, interval=10, repeat=False)
-
-            tk.mainloop()
+            plt.show()
             return
 
         for i in range(num_steps):

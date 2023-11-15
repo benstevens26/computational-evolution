@@ -139,7 +139,8 @@ class Agent:
 
     def update_patch(self):
         """Update patch attribute centre"""
-        self.patch.set_center(self.pos)
+
+        self.patch.set_center((self.pos[0], self.pos[1]))
 
     def remove_patch(self):
         """Remove patch attribute"""
