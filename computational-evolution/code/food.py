@@ -12,59 +12,60 @@ import numpy as np
 import matplotlib.patches as patches
 from CONSTANTS import *
 
+
 class Food:
     """Food Class
     
     Attributes:
         pos (array): Position of food
         patch (matplotlib object): Representation of food for animation
-
-    Methods:
-        pos(): Return food position
-        patch(): Return patch object
-        setPos(new_pos): Set food position to new_pos
-        updatePatch(): Update patch attribute centre
-        removePatch(): Remove patch attribute
+        energy (int): Energy of food
 
     """   
     def __init__(self, pos):
         """Initialise food
-        
-        Parameters:
-            pos (list/array): initial position [x,y]            
 
         """
 
-        if type(pos) == type(list):
+        if isinstance(pos, list):
             pos = np.asarray(pos)
 
         self.pos = pos
+        self.energy = EAT_ENERGY
         self.patch = patches.Circle(pos, FOOD_SIZE, fc='r')
+        self.size = FOOD_SIZE
 
-    def pos(self):
+    def get_pos(self):
         """Return food position"""
         return self.pos
 
-    def id(self):
+    def get_size(self):
+        """Return food size"""
+        return self.size
+
+    def get_id(self):
         """Return agent unique id"""
         return id(self)
     
-    def patch(self):
+    def get_patch(self):
         """Return patch object"""
         return self.patch
+
+    def get_energy(self):
+        """Return food energy"""
+        return self.energy
     
-    def setPos(self, new_pos):
+    def set_pos(self, new_pos):
         """Set food position"""
-        if type(new_pos) == type(list): # ensure vectorised
+        if isinstance(new_pos, list):
             new_pos = np.asarray(new_pos)
         
         self.pos = new_pos
 
-    def updatePatch(self):
+    def update_patch(self):
         """Update patch attribute centre"""
-        self.patch.center = self.pos
+        self.patch.set_center(self.pos)
 
-    def removePatch(self):
+    def remove_patch(self):
         """Remove patch attribute"""
         self.patch.set_visible(False)
-

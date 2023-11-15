@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="d10d0fed-6211-4ec8-a761-00ed3b7cb8f0" name="Changes" comment="genespace animation">
+      <change beforePath="$PROJECT_DIR$/.idea/computational-evolution.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/computational-evolution.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/CONSTANTS.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/CONSTANTS.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/agent.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/computational-evolution/code/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/environment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/food.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/food.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/computational-evolution/code/testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/computational-evolution/code/testing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,6 +31,12 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
   <component name="ProjectId" id="2Wnd6b8ddaoLzZdnD0jEiuIttWj" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -32,6 +48,7 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/alyss/Comp_Phys&quot;
   }
 }</component>
