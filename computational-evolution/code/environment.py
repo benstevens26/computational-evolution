@@ -85,7 +85,7 @@ class Environment:
         y = np.random.uniform(0, self.size)
         return np.asarray([x, y])
 
-    def add_agent(self, init_pos=None, init_speed=None, init_size=None):
+    def add_agent(self, init_pos=None, init_speed=None, init_size=None, init_energy=None):
         """Add agent into environment"""
 
         if init_pos is None:
@@ -152,10 +152,10 @@ class Environment:
                 self.addFood(init_pos=position)
 
         else:
-            for i in range(0, INIT_NUM_AGENTS):
+            for i in range(0, init_agents):
                 self.add_agent()
                 self.num_agents += 1
-            for i in range(0, INIT_NUM_FOOD):
+            for i in range(0, init_food):
                 self.add_food()
                 self.num_food += 1
 
