@@ -12,12 +12,11 @@ PROB_MUTATE = 0.5  # probability of a mutation occurring in offspring
 # environment related constants
 ENV_SIZE = 4000
 TIME_STEP = 0.1
-DATA_INTERVAL = 10  # number of steps between data collection
-ANIMATE = False
+DATA_INTERVAL = 1  # number of steps between data collection
 CONTINUATION = False
 
 # food related constants
 FOOD_SIZE = 50
-FOOD_SPAWN_RATE = 0.05
+FOOD_SPAWN_RATE = 1
 
 BASE_LOSS = TIME_STEP*10

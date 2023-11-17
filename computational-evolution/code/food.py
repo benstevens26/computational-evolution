@@ -35,7 +35,6 @@ class Food:
         self.energy = EAT_ENERGY
         self.patch = patches.Circle(self.pos, self.size, fc='r')
 
-
     def get_pos(self):
         """Return food position"""
         return self.pos

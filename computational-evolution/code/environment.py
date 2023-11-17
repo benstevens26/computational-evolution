@@ -121,7 +121,11 @@ class Environment:
 
         del_list_food = []
         for food in self.food_list:
-            if np.linalg.norm(agent.get_pos() - food.get_pos()) < (agent.get_size() + food.get_size()):
+            ag_pos = agent.get_pos()
+            food_pos = food.get_pos()
+            ag_size = agent.get_size()
+            food_size = food.get_size()
+            if not (np.abs(ag_pos[0] - food_pos[0]) > ag_size + food_size or np.abs(ag_pos[1] - food_pos[1]) > ag_size + food_size):
                 food.remove_patch()
                 del_list_food.append(food)
                 self.num_food -= 1
@@ -196,7 +200,6 @@ class Environment:
             if self.step_count % np.reciprocal(self.food_spawn_rate) == 0:
                 self.add_food()
 
-
         self.step_count += 1
 
     def update(self, i):
@@ -238,6 +241,9 @@ class Environment:
                 raise Exception("First populate environment")
 
             self.step()
+
+            if self.step_count % 100 == 0:
+                print('frame ',self.step_count,'/',num_steps)
 
             if take_data:
                 if self.step_count % DATA_INTERVAL != 0:
