@@ -50,7 +50,7 @@ class Agent:
 
         self.pos = pos
         self.direction = np.random.uniform(-np.pi, np.pi)
-        self.patch = patches.Circle(self.pos, self.size, fc='g')
+        self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
 
     def get_pos(self):

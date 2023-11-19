@@ -8,19 +8,16 @@ Functions:
     
 """
 
-import random
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import matplotlib.animation as animation
 from CONSTANTS import *
 from agent import Agent
 from food import Food
+from predator import Predator
 import pandas as pd
-import tkinter as tk
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.backend_bases import key_press_handler
-from matplotlib.figure import Figure
+
+
 
 
 class Environment:
@@ -50,9 +47,11 @@ class Environment:
         self.step_count = 0
         self.num_agents = 0
         self.num_food = 0
+        self.num_predators = 0
         self.sim_name = sim_name
         self.agent_list = []
         self.food_list = []
+        self.predator_list = []
         self.food_data = []
         self.agent_data = []
         self.pop_data = []
@@ -90,6 +89,19 @@ class Environment:
         if self.animate:
             self.axes.add_patch(agent.patch)
 
+    def add_predator(self, init_pos=None, init_speed=None, init_size=None):
+        """Add predator into environment"""
+
+        if init_pos is None:
+            init_pos = self.gen_pos()
+
+        predator = Predator(init_pos, init_speed, init_size)
+        self.predator_list.append(predator)
+        self.num_predators += 1
+
+        if self.animate:
+            self.axes.add_patch(predator.patch)
+
     def get_agent(self, agent_id):
         """Return agent with a given id"""
         for agent in self.agent_list:
@@ -108,13 +120,15 @@ class Environment:
         if self.animate:
             self.axes.add_patch(food.patch)
 
-    def populate(self, init_agents, init_food):
-        """Populate the environment with agents and food"""
+    def populate(self, init_agents, init_food, init_predators):
+        """Populate the environment with agents, predators and food"""
 
         for i in range(0, init_agents):
             self.add_agent()
         for i in range(0, init_food):
             self.add_food()
+        for i in range(0, init_predators):
+            self.add_predator()
 
     def eat_check(self, agent):
         """Check for food nearby agent and eat"""
@@ -133,6 +147,23 @@ class Environment:
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
+    def eat_check_predator(self, predator):
+        """Check for prey nearby predator and eat"""
+
+        del_list_agent = []
+        for agent in self.agent_list:
+            pred_pos = predator.get_pos()
+            agent_pos = agent.get_pos()
+            pred_size = predator.get_size()
+            agent_size = agent.get_size()
+            if not (np.abs(pred_pos[0] - agent_pos[0]) > pred_size + agent_size or np.abs(pred_pos[1] - agent_pos[1]) > pred_size + agent_size):
+                agent.remove_patch()
+                del_list_agent.append(agent)
+                self.num_agents -= 1
+                predator.eat_food(agent)
+
+        self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
+
     def divide(self, parent):
         """Duplicate agent"""
 
@@ -141,7 +172,11 @@ class Environment:
         parent.set_energy(new_energy)
 
         speed, size = self.mutate(parent)
-        self.add_agent(init_pos=child_pos, init_speed=speed, init_size=size)
+
+        if parent is Predator:
+            self.add_predator(init_pos=child_pos, init_speed=speed, init_size=size)
+        else:
+            self.add_agent(init_pos=child_pos, init_speed=speed, init_size=size)
 
     def mutate(self, parent: Agent):
         """Mutate and return new parameters"""
@@ -178,6 +213,20 @@ class Environment:
             raise Exception("No agents remaining")
 
         del_list_agent = []
+        del_list_predator = []
+
+        for predator in self.predator_list:
+            predator.move()
+            self.eat_check_predator(predator)
+
+            if predator.get_energy() < 0:
+                predator.remove_patch()
+                del_list_predator.append(predator)
+                self.num_predators -= 1
+
+            if predator.get_energy() > (REP_THRESHOLD * MAX_ENERGY):
+                self.divide(parent=predator)
+
         for agent in self.agent_list:
             agent.move()
             self.eat_check(agent)
@@ -191,10 +240,7 @@ class Environment:
                 self.divide(parent=agent)
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
-
-        # r = np.random.random()
-        # if r < FOOD_SPAWN_RATE:
-        #     self.add_food()
+        self.predator_list = [predator for predator in self.predator_list if predator not in del_list_predator]
 
         if not self.food_spawn_rate == 0:
             if self.step_count % np.reciprocal(self.food_spawn_rate) == 0:
@@ -215,6 +261,9 @@ class Environment:
         for food in self.food_list:
             food.update_patch()
 
+        for predator in self.predator_list:
+            predator.update_patch()
+
     def run(self, num_steps, animate=False, take_data=True):
         """Run simulation for num_steps"""
         self.animate = animate
@@ -230,6 +279,8 @@ class Environment:
                 self.axes.add_patch(agent.patch)
             for food in self.food_list:
                 self.axes.add_patch(food.patch)
+            for predator in self.predator_list:
+                self.axes.add_patch(predator.patch)
 
             anim = animation.FuncAnimation(self.fig, self.update, frames=num_steps, repeat=False,
                                            interval=10)

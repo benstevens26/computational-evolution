@@ -33,7 +33,7 @@ class Food:
         self.pos = pos
         self.size = FOOD_SIZE
         self.energy = EAT_ENERGY
-        self.patch = patches.Circle(self.pos, self.size, fc='r')
+        self.patch = patches.Circle(self.pos, self.size, fc='green')
 
     def get_pos(self):
         """Return food position"""
