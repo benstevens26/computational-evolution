@@ -8,6 +8,7 @@ Functions:
 import pandas as pd
 import os
 import matplotlib.animation as animation
+import matplotlib.pyplot as plt
 
 
 def import_data(folder_path):
@@ -45,11 +46,11 @@ class Animation:
         self.pop_text1 = self.ax.text(0.7 * 200, 1.01 * 200, '')
         self.fig_title = self.ax.text(0.35 * 200, 1.05 * 200, 'Genespace')
 
-        self.ax.scatter(df_speed1.iloc[i], df_size1.iloc[i], s=count1.iloc[i])
-        self.step_text1.set_text('Steps: ' + str(times1.iloc[i]))
-        self.pop_text1.set_text('Population: ' + str(population1.iloc[i]))
+        self.ax.scatter(df_speed.iloc[i], df_size.iloc[i], s=count.iloc[i])
+        self.step_text1.set_text('Steps: ' + str(times.iloc[i]))
+        self.pop_text1.set_text('Population: ' + str(population.iloc[i]))
 
     def animate(self):
-        anim = animation.FuncAnimation(self.fig, self.update, frames=len(times1), interval=0.1, repeat=False)
+        anim = animation.FuncAnimation(self.fig, self.update, frames=len(times), interval=0.1, repeat=False)
 
         plt.show()

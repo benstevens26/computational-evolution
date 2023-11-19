@@ -286,22 +286,26 @@ class Environment:
 
     def run(self, num_steps, animate=False, take_data=True):
         """Run simulation for num_steps"""
-        self.animation = animate
 
-        if self.animation:
+        if animate:
             self.fig = plt.figure(figsize=(6, 6))
-            self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
+            self.axes = plt.axes(xlim=(0, self.size), ylim=(0, self.size))
+            self.step_text = self.axes.text(0.4 * self.size, 1.02 * self.size, '')
+            self.pop_text = self.axes.text(0.6 * self.size, 1.02 * self.size, '')
+            self.fig_title = self.axes.text(0.35 * self.size, 1.05 * self.size, 'Environment')
 
-            self.step_text = self.axes.text(0.4 * ENV_SIZE, 1.02 * ENV_SIZE, '')
-            self.pop_text = self.axes.text(0.6 * ENV_SIZE, 1.02 * ENV_SIZE, '')
-            self.fig_title = self.axes.text(0.35 * ENV_SIZE, 1.05 * ENV_SIZE, 'Environment')
+            for agent in self.agent_list:
+                self.axes.add_patch(agent.patch)
+            for food in self.food_list:
+                self.axes.add_patch(food.patch)
 
             anim = animation.FuncAnimation(self.fig, self.animate, frames=num_steps, repeat=False,
-                                           interval=10)  # 10x speed
+                                           interval=10)
 
             plt.show()
 
         for i in range(num_steps):
+            print(i)
             if self.num_agents == 0:
                 raise Exception("First populate environment")
 

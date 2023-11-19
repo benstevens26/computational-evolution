@@ -11,14 +11,13 @@ REP_THRESHOLD = 0.8  # reproduction threshold, e.g. 0.8 -> 80% energy required t
 PROB_MUTATE = 0.5  # probability of a mutation occurring in offspring
 
 # environment related constants
-ENV_SIZE = 4000
+ENV_SIZE = 8000
 TIME_STEP = 0.1
 DATA_INTERVAL = 10  # number of steps between data collection
-ANIMATE = False
 CONTINUATION = False
 
 # food related constants
 FOOD_SIZE = 50
-FOOD_SPAWN_RATE = 0.05
+FOOD_SPAWN_RATE = 0.05*4
 
 BASE_LOSS = TIME_STEP*10
