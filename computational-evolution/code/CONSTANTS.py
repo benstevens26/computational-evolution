@@ -17,6 +17,6 @@ CONTINUATION = False
 
 # food related constants
 FOOD_SIZE = 50
-FOOD_SPAWN_RATE = 0.04
+FOOD_SPAWN_RATE = 0.08
 
 BASE_LOSS = TIME_STEP*10

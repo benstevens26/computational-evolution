@@ -135,11 +135,8 @@ class Environment:
 
         del_list_food = []
         for food in self.food_list:
-            ag_pos = agent.get_pos()
-            food_pos = food.get_pos()
-            ag_size = agent.get_size()
-            food_size = food.get_size()
-            if not (np.abs(ag_pos[0] - food_pos[0]) > ag_size + food_size or np.abs(ag_pos[1] - food_pos[1]) > ag_size + food_size):
+
+            if np.linalg.norm(agent.pos - food.pos) < (agent.size + food.size):
                 food.remove_patch()
                 del_list_food.append(food)
                 self.num_food -= 1
@@ -152,15 +149,15 @@ class Environment:
 
         del_list_agent = []
         for agent in self.agent_list:
-            pred_pos = predator.get_pos()
-            agent_pos = agent.get_pos()
-            pred_size = predator.get_size()
-            agent_size = agent.get_size()
-            if not (np.abs(pred_pos[0] - agent_pos[0]) > pred_size + agent_size or np.abs(pred_pos[1] - agent_pos[1]) > pred_size + agent_size):
-                agent.remove_patch()
-                del_list_agent.append(agent)
-                self.num_agents -= 1
-                predator.eat_food(agent)
+            predator_size = predator.size
+            agent_size = agent.size
+
+            if predator_size > agent_size:
+                if np.linalg.norm(predator.pos - agent.pos) < (agent_size + predator_size):
+                    agent.remove_patch()
+                    del_list_agent.append(agent)
+                    self.num_agents -= 1
+                    predator.eat_food(food=agent)
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
@@ -173,12 +170,12 @@ class Environment:
 
         speed, size = self.mutate(parent)
 
-        if parent is Predator:
+        if isinstance(parent, Predator):
             self.add_predator(init_pos=child_pos, init_speed=speed, init_size=size)
         else:
             self.add_agent(init_pos=child_pos, init_speed=speed, init_size=size)
 
-    def mutate(self, parent: Agent):
+    def mutate(self, parent):
         """Mutate and return new parameters"""
 
         speed = parent.get_speed()
@@ -253,14 +250,12 @@ class Environment:
 
         self.step()
         self.step_text.set_text('Steps: ' + str(self.step_count))
-        self.pop_text.set_text('Population: ' + str(self.num_agents))
+        self.pop_text.set_text('Prey: ' + str(self.num_agents))
 
         for agent in self.agent_list:
             agent.update_patch()
-
         for food in self.food_list:
             food.update_patch()
-
         for predator in self.predator_list:
             predator.update_patch()
 

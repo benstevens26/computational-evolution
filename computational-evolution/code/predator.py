@@ -18,7 +18,7 @@ class Predator(Agent):
             self.speed = speed
 
         if size is None:
-            self.size = np.random.randint(50, 150)
+            self.size = np.random.randint(100, 200)
         else:
             self.size = size
 
