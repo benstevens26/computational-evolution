@@ -7,7 +7,6 @@ Functions:
     None
     
 """
-
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,9 +18,7 @@ from food import Food
 import os
 import pandas as pd
 import tkinter as tk
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.backend_bases import key_press_handler
-from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class Environment:
@@ -71,8 +68,8 @@ class Environment:
     def gen_pos_food(self):
         """Return a random position within environment"""
 
-        x = np.random.uniform(0, ENV_SIZE)
-        y = np.random.uniform(0, ENV_SIZE)
+        x = np.random.uniform(0, self.size)
+        y = np.random.uniform(0, self.size)
         return np.asarray([x, y])
 
     def set_food_spawn_rate(self, spawn_rate):
@@ -98,7 +95,7 @@ class Environment:
         if self.animation:
             self.axes.add_patch(Agent.get_patch(agent))
 
-    def get_agent(self, agent_id):
+    def get_agent(self):
         """Return agent with a given id"""
         for agent in self.agent_list:
             if Agent.get_id(agent) == id:
@@ -109,7 +106,6 @@ class Environment:
         if init_pos is None:
             init_pos = self.gen_pos_food()
 
-        init_pos = self.gen_pos()
         food = Food(init_pos)
 
         self.food_list.append(food)
@@ -118,14 +114,14 @@ class Environment:
         if self.animation:
             self.axes.add_patch(Food.get_patch())
 
-    def importdata(self, folder_path=r"C:\Users\alyss\OneDrive\Documents\Year 3 Physics\Project Data\data"):
+    def importdata(self, data_file_path):
         """Import all csv files, unpack into dataframes, and return dictionary"""
 
-        csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
+        csv_files = [f for f in os.listdir(data_file_path) if f.endswith('.csv')]
         dataframes = {}
 
         for csv_file in csv_files:
-            file_path = os.path.join(folder_path, csv_file)
+            file_path = os.path.join(data_file_path, csv_file)
             dataframes[csv_file.split('.')[0]] = pd.read_csv(file_path)
 
         return dataframes
@@ -144,12 +140,12 @@ class Environment:
 
             for i in range(len(agents)):
                 position = (agents['X-Coord'].iloc[i], agents['Y-Coord'].iloc[i])
-                self.addAgent(init_pos=position, init_size=agents['Size'].iloc[i], init_speed=agents['Speed'].iloc[i],
-                              init_energy=agents['Energy'].iloc[i])
+                self.add_agent(init_pos=position, init_size=agents['Size'].iloc[i], init_speed=agents['Speed'].iloc[i],
+                               init_energy=agents['Energy'].iloc[i])
 
             for i in range(len(food)):
                 position = (food['X-Coord'].iloc[i], food['Y-Coord'].iloc[i])
-                self.addFood(init_pos=position)
+                self.add_food(init_pos=position)
 
         else:
             for i in range(0, init_agents):
@@ -172,6 +168,44 @@ class Environment:
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
+    def check_point(self, agent):
+        """Check for food within the agent's circle sector of vision"""
+
+        points = []
+        percentage = (agent.get_radius() ** 2 * agent.get_angle()) * 100 / (np.pi * agent.get_radius() ** 2)
+        end = (2 * np.pi / percentage) + agent.get_angle()
+
+        for food in self.food_list:
+            position = food.get_pos()
+            x = position[0]
+            y = position[1]
+            radius_f = np.sqrt(x ** 2 + y ** 2)
+            angle_f = np.arctan(y / x)  # cartesian to polar
+
+            if (angle_f >= agent.get_angle()) and (angle_f <= end) and (radius_f <= agent.get_radius()):
+                points.append(food)
+
+        return points
+
+    def check_intercept(self, agent, points):
+        """Check if points within an agent's sector of vision intercept the agent's rays"""
+
+        eat_me = []  # change this at some point
+        rays = agent.get_rays()
+
+        for food in points:  # could combine this and check_point, make check_intercept a static method
+            centre = food.get_pos()
+            radius = food.get_size()
+
+            for ray in rays:
+                a, b, c = ray.get_equation_of_ray_line  # can be included in agent.get_rays() ?
+                dist = (a * centre[0] + b * centre[1] + c) / np.sqrt(
+                    a ** 2 + b ** 2)  # distance from ray to food centre
+                if dist <= radius:
+                    eat_me.append(food)
+
+        return eat_me
+
     def divide(self, parent):
         """Duplicate agent"""
 
@@ -190,7 +224,7 @@ class Environment:
 
         if np.random.random() < self.mutation_rate:  # speed mutation
             self.mutation_count += 1
-            mutation =  np.random.poisson(self.mutation_size, None)
+            mutation = np.random.poisson(self.mutation_size, None)
             while mutation == 0:
                 mutation = np.random.poisson(self.mutation_size, None)
 
@@ -250,37 +284,11 @@ class Environment:
         for food in self.food_list:
             food.update_patch()
 
-    def update(self, i):
-        """Animate genespace using matplotlib"""
-
-        self.step()
-        self.ax.clear()
-
-        self.ax.set_xlim(0, 150)
-        self.ax.set_ylim(0, 150)
-        self.ax.set_xlabel('Speed')
-        self.ax.set_ylabel('Size')
-
-        self.step_text1 = self.ax.text(0.4 * 150, 1.02 * 150, '')
-        self.pop_text1 = self.ax.text(0.6 * 150, 1.02 * 150, '')
-        self.fig1_title = self.ax.text(0.35 * 150, 1.05 * 150, 'Genespace')
-
-        self.step_text1.set_text('Steps: ' + str(self.steps))
-        self.pop_text1.set_text('Population: ' + str(self.num_agents))
-
-        for agent in self.agent_list:
-            self.ax.scatter(Agent.speed(agent), Agent.size(agent), color='pink', s=50)
-
     def run(self, num_steps, animate=False, take_data=True):
         """Run simulation for num_steps"""
         self.animation = animate
 
         if self.animation:
-
-            self.window = tk.Tk()
-            self.window.title('Simulation Animations')
-            self.window.geometry('1200x600')
-
             self.fig = plt.figure(figsize=(6, 6))
             self.axes = plt.axes(xlim=(0, ENV_SIZE), ylim=(0, ENV_SIZE))
 
@@ -288,24 +296,10 @@ class Environment:
             self.pop_text = self.axes.text(0.6 * ENV_SIZE, 1.02 * ENV_SIZE, '')
             self.fig_title = self.axes.text(0.35 * ENV_SIZE, 1.05 * ENV_SIZE, 'Environment')
 
-            self.fig1 = plt.figure(figsize=(6, 6))
-            self.ax = plt.axes(xlim=(0, 150), ylim=(0, 150))
-
-            self.canvas1 = FigureCanvasTkAgg(self.fig, self.window)
-            self.canvas2 = FigureCanvasTkAgg(self.fig1, self.window)
-
-            self.canvas1.get_tk_widget().grid(column=0, row=1)
-            self.canvas2.get_tk_widget().grid(column=1, row=1)
-
-            self.populate()
-
-            anim = animation.FuncAnimation(self.fig, self.animate, frames=NUM_STEPS, repeat=False,
+            anim = animation.FuncAnimation(self.fig, self.animate, frames=num_steps, repeat=False,
                                            interval=10)  # 10x speed
 
-            anim2 = animation.FuncAnimation(self.fig1, self.update, frames=NUM_STEPS, interval=10, repeat=False)
-
-            tk.mainloop()
-            return
+            plt.show()
 
         for i in range(num_steps):
             if self.num_agents == 0:
@@ -375,5 +369,3 @@ class Environment:
 
         food_df.to_csv(f"{data_file_path}/food_data_{self.sim_name}.csv",
                        index=False)
-
-

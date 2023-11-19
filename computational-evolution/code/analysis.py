@@ -23,8 +23,8 @@ def import_data(folder_path):
     return dataframes
 
 
-ben_path = "computational-evolution/data"
-dataframes = import_data(ben_path)
+# ben_path = "computational-evolution/data"
+# dataframes = import_data(ben_path)
 
 
 class Animation:

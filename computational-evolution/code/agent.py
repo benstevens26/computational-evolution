@@ -124,7 +124,7 @@ class Agent:
 
         new_pos = self.pos + np.asarray([delta_x, delta_y])
 
-        if not 0 < new_pos[0] <= ENV_SIZE: # this code should be environment - side
+        if not 0 < new_pos[0] <= ENV_SIZE:  # this code should be environment - side
             new_pos[0] = new_pos[0] % ENV_SIZE
             delta_x = new_pos[0] - self.pos[0]
 
