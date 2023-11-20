@@ -48,10 +48,16 @@ class Agent:
         else:
             self.energy = energy
 
-        self.pos = pos
+        # self.speed = 100
+        # self.size = 100
+
+        self.pos = pos  # assign position, energy, and direction
         self.direction = np.random.uniform(-np.pi, np.pi)
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
+        self.correlation = 0.2
+        self.angle = np.random.uniform(0, 3*np.pi / 2)
+        self.radius = self.get_radius()
 
     def get_pos(self):
         """Return agent position"""
@@ -74,6 +80,14 @@ class Agent:
     def get_size(self):
         """Return agent size"""
         return self.size
+
+    def get_angle(self):
+        return self.angle
+
+    def get_radius(self):
+        rad_s = MAX_SIGHT / self.angle
+        radius = np.sqrt(rad_s)
+        return radius
 
     def set_energy(self, new_energy):
         """Set agent energy"""
@@ -106,21 +120,24 @@ class Agent:
         """Return agent UID"""
         return id(self)
 
-    def rand_walk(self, t):
+    def rand_walk(self, t, direction=None):
         """Return dx, dy for a correlated random walk"""
 
         cone = np.pi / 4
-        correlation = CORRELATION_FACTOR
+        if direction is None:
+            new_direction = self.direction + np.random.uniform(-cone, cone)
 
-        new_direction = self.direction + np.random.uniform(-cone, cone)
-        self.direction = correlation * new_direction + (1 - correlation) * self.direction
+        else:
+            new_direction = self.direction
+
+        self.direction = self.correlation * new_direction + (1 - self.correlation) * self.direction
 
         delta_x = self.speed * t * np.cos(self.direction)
         delta_y = self.speed * t * np.sin(self.direction)
 
         new_pos = self.pos + np.asarray([delta_x, delta_y])
 
-        if not 0 < new_pos[0] <= ENV_SIZE:  # this code should be environment side probs
+        if not 0 < new_pos[0] <= ENV_SIZE:  # this code should be environment - side
             new_pos[0] = new_pos[0] % ENV_SIZE
             delta_x = new_pos[0] - self.pos[0]
 
@@ -130,11 +147,11 @@ class Agent:
 
         return delta_x, delta_y
 
-    def move(self):
+    def move(self, direction=None):
         """Move agent one step, update position, decrease energy"""
 
         t = TIME_STEP
-        dx, dy = self.rand_walk(t)  # generate dx, dy for random walk
+        dx, dy = self.rand_walk(t, direction)  # generate dx, dy for random walk
         self.pos += np.asarray([dx, dy])
 
         new_energy = self.energy - self.get_energy_loss()
@@ -147,3 +164,9 @@ class Agent:
     def remove_patch(self):
         """Remove patch attribute"""
         self.patch.set_visible(False)
+
+    def set_direction(self, direction):
+        self.direction = direction
+
+    def set_correlation(self, c):
+        self.correlation = c

@@ -66,6 +66,35 @@ class Environment:
         """Set environment size"""
         self.size = size
 
+    @staticmethod
+    def ring_coordinates():
+        """Generate coordinates within a ring"""
+
+        theta = random.uniform(0, 2*np.pi)
+        r_squared = random.uniform(2500**2, 3000**2)
+        r = np.sqrt(r_squared)
+        x = r*np.cos(theta) + 4000
+        y = r*np.sin(theta) + 4000
+        return x, y
+
+    def gen_pos_food(self):
+        """Return a random position within environment"""
+
+        x = np.random.uniform(0, self.size)
+        y = np.random.uniform(0, self.size)
+
+        # p = random.random()
+        #
+        # if p < 0.5:
+        #     r, theta = [np.sqrt(random.randint(0, 1000)) * np.sqrt(1000), 2 * np.pi * random.random()]
+        #     x = 4000 + r * np.cos(theta)
+        #     y = 4000 + r * np.sin(theta)
+        #
+        # else:
+        #     x, y = self.ring_coordinates()
+
+        return np.asarray([x, y])
+
     def set_food_spawn_rate(self, spawn_rate):
         self.food_spawn_rate = spawn_rate
 
@@ -76,13 +105,13 @@ class Environment:
         y = np.random.uniform(0, self.size)
         return np.asarray([x, y])
 
-    def add_agent(self, init_pos=None, init_speed=None, init_size=None):
+    def add_agent(self, init_pos=None, init_speed=None, init_size=None, init_energy=None):
         """Add agent into environment"""
 
         if init_pos is None:
             init_pos = self.gen_pos()
 
-        agent = Agent(init_pos, init_speed, init_size)
+        agent = Agent(init_pos, init_speed, init_size, init_energy)
         self.agent_list.append(agent)
         self.num_agents += 1
 
@@ -108,10 +137,11 @@ class Environment:
             if Agent.get_id(agent) == id:
                 return agent
 
-    def add_food(self):
+    def add_food(self, init_pos=None):
         """Add food into environment"""
+        if init_pos is None:
+            init_pos = self.gen_pos_food()
 
-        init_pos = self.gen_pos()
         food = Food(init_pos)
 
         self.food_list.append(food)
@@ -143,6 +173,71 @@ class Environment:
                 agent.eat_food(food)
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
+
+    def eat(self, agent, food):
+        del_list_food = []
+
+        if np.linalg.norm(agent.get_pos() - food.get_pos()) < (agent.get_size() + food.get_size()):
+            food.remove_patch()
+            del_list_food.append(food)
+            self.num_food -= 1
+            agent.eat_food(food)
+            agent.set_correlation(c=0.2)
+            print('eat')
+
+        self.food_list = [food for food in self.food_list if food not in del_list_food]
+
+    def check_point(self, agent):
+        """Check for food within the agent's circle sector of vision"""
+
+        points = []
+        percentage = (agent.get_radius() ** 2 * agent.get_angle()) * 100 / (np.pi * agent.get_radius() ** 2)
+        end = (2 * np.pi / percentage) + agent.get_angle()
+
+        for food in self.food_list:
+            position = food.get_pos()
+            x = position[0]
+            y = position[1]
+            radius_f = np.sqrt(x ** 2 + y ** 2)
+            angle_f = np.arctan(y / x)  # cartesian to polar
+
+            if (angle_f >= agent.get_angle()) and (angle_f <= end) and (radius_f <= agent.get_radius()):
+                points.append(food)
+
+        return points
+    @staticmethod
+    def distance(agent, food):
+        return np.linalg.norm(agent.get_pos() - food.get_pos())
+
+    def find_closest(self, agent, food):
+        point = min(food, key=lambda i: self.distance(agent, i))
+        agent_pos = agent.get_pos()
+        food_pos = point.get_pos()
+
+        direction = [agent_pos[0] - food_pos[0], agent_pos[1] - food_pos[1]]
+        agent.set_correlation(c=0)
+
+        return point, direction
+
+
+    def check_intercept(self, agent, points):
+        """Check if points within an agent's sector of vision intercept the agent's rays"""
+
+        eat_me = []  # change this at some point
+        rays = agent.get_rays()
+
+        for food in points:  # could combine this and check_point, make check_intercept a static method
+            centre = food.get_pos()
+            radius = food.get_size()
+
+            for ray in rays:
+                a, b, c = ray.get_equation_of_ray_line  # can be included in agent.get_rays() ?
+                dist = (a * centre[0] + b * centre[1] + c) / np.sqrt(
+                    a ** 2 + b ** 2)  # distance from ray to food centre
+                if dist <= radius:
+                    eat_me.append(food)
+
+        return eat_me
 
     def eat_check_predator(self, predator):
         """Check for prey nearby predator and eat"""
@@ -225,8 +320,15 @@ class Environment:
                 self.divide(parent=predator)
 
         for agent in self.agent_list:
-            agent.move()
-            self.eat_check(agent)
+            points = self.check_point(agent)
+
+            if len(points) == 0:
+                agent.move()
+
+            else:
+                food, direction = self.find_closest(agent, points)
+                agent.move(direction=direction)
+                self.eat(agent, food)
 
             if agent.get_energy() < 0:
                 agent.remove_patch()
