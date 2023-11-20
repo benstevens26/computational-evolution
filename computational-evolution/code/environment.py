@@ -79,18 +79,18 @@ class Environment:
     def gen_pos_food(self):
         """Return a random position within environment"""
 
-        # x = np.random.uniform(0, self.size)
-        # y = np.random.uniform(0, self.size)
+        x = np.random.uniform(0, self.size)
+        y = np.random.uniform(0, self.size)
 
-        p = random.random()
-
-        if p < 0.5:
-            r, theta = [np.sqrt(random.randint(0, 1000)) * np.sqrt(1000), 2 * np.pi * random.random()]
-            x = 4000 + r * np.cos(theta)
-            y = 4000 + r * np.sin(theta)
-
-        else:
-            x, y = self.ring_coordinates()
+        # p = random.random()
+        #
+        # if p < 0.5:
+        #     r, theta = [np.sqrt(random.randint(0, 1000)) * np.sqrt(1000), 2 * np.pi * random.random()]
+        #     x = 4000 + r * np.cos(theta)
+        #     y = 4000 + r * np.sin(theta)
+        #
+        # else:
+        #     x, y = self.ring_coordinates()
 
         return np.asarray([x, y])
 
@@ -179,7 +179,6 @@ class Environment:
 
     def eat_check(self, agent):
         """Check for food nearby agent and eat"""
-
         del_list_food = []
         for food in self.food_list:
             if np.linalg.norm(agent.get_pos() - food.get_pos()) < (agent.get_size() + food.get_size()):
@@ -187,6 +186,17 @@ class Environment:
                 del_list_food.append(food)
                 self.num_food -= 1
                 agent.eat_food(food)
+
+        self.food_list = [food for food in self.food_list if food not in del_list_food]
+
+    def eat(self, agent, food):
+        del_list_food = []
+        if np.linalg.norm(agent.get_pos() - food.get_pos()) < (agent.get_size() + food.get_size()):
+            food.remove_patch()
+            del_list_food.append(food)
+            self.num_food -= 1
+            agent.eat_food(food)
+            agent.set_correlation(c=0.2)
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
@@ -208,6 +218,20 @@ class Environment:
                 points.append(food)
 
         return points
+    @staticmethod
+    def distance(agent, food):
+        return np.linalg.norm(agent.get_pos() - food.get_pos())
+
+    def find_closest(self, agent, food):
+        point = min(food, key=lambda i: self.distance(agent, i))
+        agent_pos = agent.get_pos()
+        food_pos = point.get_pos()
+
+        direction = [agent_pos[0] - food_pos[0], agent_pos[1] - food_pos[1]]
+        agent.set_correlation(c=0)
+
+        return point, direction
+
 
     def check_intercept(self, agent, points):
         """Check if points within an agent's sector of vision intercept the agent's rays"""
@@ -274,8 +298,15 @@ class Environment:
 
         del_list_agent = []
         for agent in self.agent_list:
-            agent.move()
-            self.eat_check(agent)
+            points = self.check_point(agent)
+
+            if len(points) == 0:
+                agent.move()
+
+            else:
+                food, direction = self.find_closest(agent, points)
+                agent.move(direction=direction)
+                self.eat(agent, food)
 
             if agent.get_energy() < 0:
                 agent.remove_patch()

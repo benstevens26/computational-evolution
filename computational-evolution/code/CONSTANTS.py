@@ -9,6 +9,7 @@ AGENT_SIZE = 100
 CORRELATION_FACTOR = 0.8
 REP_THRESHOLD = 0.8  # reproduction threshold, e.g. 0.8 -> 80% energy required to reproduce
 PROB_MUTATE = 0.5  # probability of a mutation occurring in offspring
+MAX_SIGHT = 50000
 
 # environment related constants
 ENV_SIZE = 8000
@@ -18,6 +19,6 @@ CONTINUATION = False
 
 # food related constants
 FOOD_SIZE = 50
-FOOD_SPAWN_RATE = 0.05*4
+FOOD_SPAWN_RATE = 0.2
 
 BASE_LOSS = TIME_STEP*10

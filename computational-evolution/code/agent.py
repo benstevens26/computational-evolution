@@ -56,6 +56,9 @@ class Agent:
         self.direction = np.random.uniform(-np.pi, np.pi)
         self.patch = patches.Circle(pos, self.size, fc='g')
         self.rep_threshold = REP_THRESHOLD
+        self.correlation = 0.2
+        self.angle = np.random.uniform(0, 3*np.pi / 2)
+        self.radius = self.get_radius()
 
     def get_pos(self):
         """Return agent position"""
@@ -78,6 +81,14 @@ class Agent:
     def get_size(self):
         """Return agent size"""
         return self.size
+
+    def get_angle(self):
+        return self.angle
+
+    def get_radius(self):
+        rad_s = MAX_SIGHT / self.angle
+        radius = np.sqrt(rad_s)
+        return radius
 
     def set_energy(self, new_energy):
         """Set agent energy"""
@@ -110,14 +121,17 @@ class Agent:
         """Return agent UID"""
         return id(self)
 
-    def rand_walk(self, t):
+    def rand_walk(self, t, direction=None):
         """Return dx, dy for a correlated random walk"""
 
         cone = np.pi / 4
-        correlation = CORRELATION_FACTOR
+        if direction is None:
+            new_direction = self.direction + np.random.uniform(-cone, cone)
 
-        new_direction = self.direction + np.random.uniform(-cone, cone)
-        self.direction = correlation * new_direction + (1 - correlation) * self.direction
+        else:
+            new_direction = self.direction
+
+        self.direction = self.correlation * new_direction + (1 - self.correlation) * self.direction
 
         delta_x = self.speed * t * np.cos(self.direction)
         delta_y = self.speed * t * np.sin(self.direction)
@@ -151,3 +165,9 @@ class Agent:
     def remove_patch(self):
         """Remove patch attribute"""
         self.patch.set_visible(False)
+
+    def set_direction(self, direction):
+        self.direction = direction
+
+    def update_correlation(self, c):
+        self.correlation = c
