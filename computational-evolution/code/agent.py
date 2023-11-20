@@ -148,11 +148,11 @@ class Agent:
 
         return delta_x, delta_y
 
-    def move(self):
+    def move(self, direction=None):
         """Move agent one step, update position, decrease energy"""
 
         t = TIME_STEP
-        dx, dy = self.rand_walk(t)  # generate dx, dy for random walk
+        dx, dy = self.rand_walk(t, direction)  # generate dx, dy for random walk
         self.pos += np.asarray([dx, dy])
 
         new_energy = self.energy - self.get_energy_loss()
@@ -169,5 +169,5 @@ class Agent:
     def set_direction(self, direction):
         self.direction = direction
 
-    def update_correlation(self, c):
+    def set_correlation(self, c):
         self.correlation = c

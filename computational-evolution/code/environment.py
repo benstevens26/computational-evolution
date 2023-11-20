@@ -191,12 +191,14 @@ class Environment:
 
     def eat(self, agent, food):
         del_list_food = []
+
         if np.linalg.norm(agent.get_pos() - food.get_pos()) < (agent.get_size() + food.get_size()):
             food.remove_patch()
             del_list_food.append(food)
             self.num_food -= 1
             agent.eat_food(food)
             agent.set_correlation(c=0.2)
+            print('eat')
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
