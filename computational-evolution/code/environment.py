@@ -65,11 +65,33 @@ class Environment:
         """Set environment size"""
         self.size = size
 
+    @staticmethod
+    def ring_coordinates():
+        """Generate coordinates within a ring"""
+
+        theta = random.uniform(0, 2*np.pi)
+        r_squared = random.uniform(2500**2, 3000**2)
+        r = np.sqrt(r_squared)
+        x = r*np.cos(theta) + 4000
+        y = r*np.sin(theta) + 4000
+        return x, y
+
     def gen_pos_food(self):
         """Return a random position within environment"""
 
-        x = np.random.uniform(0, self.size)
-        y = np.random.uniform(0, self.size)
+        # x = np.random.uniform(0, self.size)
+        # y = np.random.uniform(0, self.size)
+
+        p = random.random()
+
+        if p < 0.5:
+            r, theta = [np.sqrt(random.randint(0, 1000)) * np.sqrt(1000), 2 * np.pi * random.random()]
+            x = 4000 + r * np.cos(theta)
+            y = 4000 + r * np.sin(theta)
+
+        else:
+            x, y = self.ring_coordinates()
+
         return np.asarray([x, y])
 
     def set_food_spawn_rate(self, spawn_rate):
@@ -265,9 +287,9 @@ class Environment:
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
-        r = np.random.random()
-        if r < FOOD_SPAWN_RATE:
-            self.add_food(init_pos=None)
+        if not self.food_spawn_rate == 0:
+            if self.step_count % np.reciprocal(self.food_spawn_rate) == 0:
+                self.add_food()
 
         self.step_count += 1
 
