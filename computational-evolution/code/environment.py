@@ -9,6 +9,7 @@ Functions:
 """
 
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from CONSTANTS import *
@@ -16,8 +17,7 @@ from agent import Agent
 from food import Food
 from predator import Predator
 import pandas as pd
-
-
+import math
 
 
 class Environment:
@@ -64,34 +64,36 @@ class Environment:
 
     def set_size(self, size):
         """Set environment size"""
+
         self.size = size
 
     @staticmethod
     def ring_coordinates():
         """Generate coordinates within a ring"""
 
-        theta = random.uniform(0, 2*np.pi)
-        r_squared = random.uniform(2500**2, 3000**2)
+        theta = random.uniform(0, 2 * np.pi)
+        r_squared = random.uniform(2500 ** 2, 3000 ** 2)
         r = np.sqrt(r_squared)
-        x = r*np.cos(theta) + 4000
-        y = r*np.sin(theta) + 4000
+        x = r * np.cos(theta) + 4000
+        y = r * np.sin(theta) + 4000
         return x, y
 
-    def gen_pos_food(self):
+    def gen_pos_food(self, food_dist=False):
         """Return a random position within environment"""
 
-        x = np.random.uniform(0, self.size)
-        y = np.random.uniform(0, self.size)
+        if food_dist is True:
+            p = random.random()
+            if p < 0.5:
+                r, theta = [np.sqrt(random.randint(0, 1000)) * np.sqrt(1000), 2 * np.pi * random.random()]
+                x = 4000 + r * np.cos(theta)
+                y = 4000 + r * np.sin(theta)
 
-        # p = random.random()
-        #
-        # if p < 0.5:
-        #     r, theta = [np.sqrt(random.randint(0, 1000)) * np.sqrt(1000), 2 * np.pi * random.random()]
-        #     x = 4000 + r * np.cos(theta)
-        #     y = 4000 + r * np.sin(theta)
-        #
-        # else:
-        #     x, y = self.ring_coordinates()
+            else:
+                x, y = self.ring_coordinates()
+
+        else:
+            x = np.random.uniform(0, self.size)
+            y = np.random.uniform(0, self.size)
 
         return np.asarray([x, y])
 
@@ -133,12 +135,14 @@ class Environment:
 
     def get_agent(self, agent_id):
         """Return agent with a given id"""
+
         for agent in self.agent_list:
             if Agent.get_id(agent) == id:
                 return agent
 
     def add_food(self, init_pos=None):
         """Add food into environment"""
+
         if init_pos is None:
             init_pos = self.gen_pos_food()
 
@@ -160,65 +164,81 @@ class Environment:
         for i in range(0, init_predators):
             self.add_predator()
 
-    def eat_check(self, agent):
+    def eat_check(self, agent, points=None):
         """Check for food nearby agent and eat"""
 
         del_list_food = []
-        for food in self.food_list:
+        if points is None:
+            for food in self.food_list:
+                if np.linalg.norm(agent.pos - food.pos) < (agent.size + food.size):
+                    food.remove_patch()
+                    del_list_food.append(food)
+                    self.num_food -= 1
+                    agent.eat_food(food)
 
-            if np.linalg.norm(agent.pos - food.pos) < (agent.size + food.size):
-                food.remove_patch()
-                del_list_food.append(food)
-                self.num_food -= 1
-                agent.eat_food(food)
+        else:
+            for food in points:
+                if np.linalg.norm(agent.pos - food.pos) < (agent.size + food.size):
+                    food.remove_patch()
+                    del_list_food.append(food)
+                    self.num_food -= 1
+                    agent.eat_food(food)
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
     def eat(self, agent, food):
-        del_list_food = []
+        """Checks to see if the closest piece of food is close enough to eat"""
 
-        if np.linalg.norm(agent.get_pos() - food.get_pos()) < (agent.get_size() + food.get_size()):
+        total_size = food.size + agent.size
+        dist = self.distance(agent, food)
+
+        if dist <= total_size:
             food.remove_patch()
-            del_list_food.append(food)
             self.num_food -= 1
             agent.eat_food(food)
-            agent.set_correlation(c=0.2)
-            print('eat')
+            agent.set_correlation(c=0.5)
 
-        self.food_list = [food for food in self.food_list if food not in del_list_food]
+        self.food_list = [f for f in self.food_list if f is not food]
 
     def check_point(self, agent):
         """Check for food within the agent's circle sector of vision"""
 
         points = []
-        percentage = (agent.get_radius() ** 2 * agent.get_angle()) * 100 / (np.pi * agent.get_radius() ** 2)
-        end = (2 * np.pi / percentage) + agent.get_angle()
+
+        agent_pos = agent.get_pos()
+        agent_angle = agent.get_angle()
+        agent_radius = agent.get_radius()
+        agent_direction = agent.get_direction()
 
         for food in self.food_list:
-            position = food.get_pos()
-            x = position[0]
-            y = position[1]
-            radius_f = np.sqrt(x ** 2 + y ** 2)
-            angle_f = np.arctan(y / x)  # cartesian to polar
-
-            if (angle_f >= agent.get_angle()) and (angle_f <= end) and (radius_f <= agent.get_radius()):
-                points.append(food)
+            food_pos = food.get_pos()
+            dist = self.distance(agent,
+                                 food)  # math.sqrt((agent_pos[0]-food_pos[0])**2 + (agent_pos[1]-food_pos[0])**2)
+            if dist <= agent_radius:
+                angle = math.atan2(food_pos[1] - agent_pos[1], food_pos[0] - agent_pos[0])
+                angle_diff = abs(angle - agent_direction)
+                if angle_diff <= agent_angle:
+                    points.append(food)
 
         return points
+
     @staticmethod
     def distance(agent, food):
-        return np.linalg.norm(agent.get_pos() - food.get_pos())
+        """Calculate the distance between the centres of an agent and a piece of food"""
+
+        return np.linalg.norm(agent.pos - food.pos)
 
     def find_closest(self, agent, food):
-        point = min(food, key=lambda i: self.distance(agent, i))
-        agent_pos = agent.get_pos()
-        food_pos = point.get_pos()
+        """Calculates which food in the agent's vision is closest to it"""
 
-        direction = [agent_pos[0] - food_pos[0], agent_pos[1] - food_pos[1]]
+        closest_food = min(food, key=lambda i: self.distance(agent, i))
+        agent_pos = agent.get_pos()
+        food_pos = closest_food.get_pos()
+
+        direction = math.atan2(food_pos[1] - agent_pos[1], food_pos[0] - agent_pos[0])
         agent.set_correlation(c=0)
 
-        return point, direction
-
+        return closest_food, direction
 
     def check_intercept(self, agent, points):
         """Check if points within an agent's sector of vision intercept the agent's rays"""
@@ -320,15 +340,19 @@ class Environment:
                 self.divide(parent=predator)
 
         for agent in self.agent_list:
-            points = self.check_point(agent)
+            agent.move(direction=None)
+            self.eat_check(agent, points=None)
 
-            if len(points) == 0:
-                agent.move()
-
-            else:
-                food, direction = self.find_closest(agent, points)
-                agent.move(direction=direction)
-                self.eat(agent, food)
+            # points = self.check_point(agent)
+            #
+            # if len(points) == 0:
+            #     agent.move(direction=None)
+            #
+            # else:
+            #     food, direction = self.find_closest(agent, points)
+            #     agent.move(direction=direction)
+            #     self.eat_check(agent, points)
+            #     # self.eat(agent, food)
 
             if agent.get_energy() < 0:
                 agent.remove_patch()
@@ -391,10 +415,10 @@ class Environment:
             self.step()
 
             if self.step_count % 100 == 0:
-                print('frame ',self.step_count,'/',num_steps)
+                print('frame ', self.step_count, '/', num_steps)
 
-            if take_data:
-                if self.step_count % DATA_INTERVAL != 0:
+            if take_data is True:
+                if self.step_count % DATA_INTERVAL == 0:
                     self.record_state()
 
         print("Run complete")
@@ -455,5 +479,3 @@ class Environment:
 
         food_df.to_csv(f"{data_file_path}/food_data_{self.sim_name}.csv",
                        index=False)
-
-

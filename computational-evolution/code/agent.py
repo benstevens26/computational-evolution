@@ -56,8 +56,8 @@ class Agent:
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
         self.correlation = 0.2
-        self.angle = np.random.uniform(0, 3*np.pi / 2)
-        self.radius = self.get_radius()
+        self.angle = np.random.uniform(np.pi, 3*np.pi/2)
+        self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)*10
 
     def get_pos(self):
         """Return agent position"""
@@ -81,13 +81,13 @@ class Agent:
         """Return agent size"""
         return self.size
 
-    def get_angle(self):
-        return self.angle
-
     def get_radius(self):
-        rad_s = MAX_SIGHT / self.angle
-        radius = np.sqrt(rad_s)
-        return radius
+        """Return radius of agent's sight"""
+        return self.radius
+
+    def get_angle(self):
+        """Return the angle of the agent's sight"""
+        return self.angle
 
     def set_energy(self, new_energy):
         """Set agent energy"""
@@ -126,9 +126,10 @@ class Agent:
         cone = np.pi / 4
         if direction is None:
             new_direction = self.direction + np.random.uniform(-cone, cone)
+            self.correlation = 0.2
 
         else:
-            new_direction = self.direction
+            new_direction = direction
 
         self.direction = self.correlation * new_direction + (1 - self.correlation) * self.direction
 
@@ -147,7 +148,7 @@ class Agent:
 
         return delta_x, delta_y
 
-    def move(self, direction=None):
+    def move(self, direction):
         """Move agent one step, update position, decrease energy"""
 
         t = TIME_STEP
@@ -166,7 +167,9 @@ class Agent:
         self.patch.set_visible(False)
 
     def set_direction(self, direction):
+        """Change the direction of the agent"""
         self.direction = direction
 
     def set_correlation(self, c):
+        """Change the correlation factor"""
         self.correlation = c
