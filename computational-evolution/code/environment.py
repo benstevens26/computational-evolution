@@ -219,7 +219,7 @@ class Environment:
             if dist <= agent_radius:
                 angle = math.atan2(food_pos[1] - agent_pos[1], food_pos[0] - agent_pos[0])
                 angle_diff = abs(angle - agent_direction)
-                if angle_diff <= agent_angle:
+                if angle_diff <= agent_angle/2:
                     points.append(food)
 
         return points

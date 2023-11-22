@@ -132,10 +132,9 @@ class Agent:
         cone = np.pi / 4
         if direction is None:
             new_direction = self.direction + np.random.uniform(-cone, cone)
-            self.set_correlation(c=0.5)
 
         else:
-            new_direction = direction
+            new_direction = direction + self.direction
 
         self.direction = self.correlation * new_direction + (1 - self.correlation) * self.direction
 
