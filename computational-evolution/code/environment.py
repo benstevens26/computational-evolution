@@ -64,7 +64,6 @@ class Environment:
 
     def set_size(self, size):
         """Set environment size"""
-
         self.size = size
 
     @staticmethod
@@ -180,11 +179,11 @@ class Environment:
         else:
             for food in points:
                 if np.linalg.norm(agent.pos - food.pos) < (agent.size + food.size):
+                    agent.eat_food(food)
                     food.remove_patch()
                     del_list_food.append(food)
                     self.num_food -= 1
-                    agent.eat_food(food)
-                    agent.set_correlation(c=0.2)
+                    agent.set_correlation(c=0.5)
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
@@ -198,7 +197,7 @@ class Environment:
             food.remove_patch()
             self.num_food -= 1
             agent.eat_food(food)
-            agent.set_correlation(c=0.2)
+            agent.set_correlation(c=0.5)
 
         self.food_list = [f for f in self.food_list if f is not food]
 
@@ -214,8 +213,7 @@ class Environment:
 
         for food in self.food_list:
             food_pos = food.get_pos()
-            dist = self.distance(agent,
-                                 food)  # math.sqrt((agent_pos[0]-food_pos[0])**2 + (agent_pos[1]-food_pos[0])**2)
+            dist = self.distance(agent, food)
             if dist <= agent_radius:
                 angle = math.atan2(food_pos[1] - agent_pos[1], food_pos[0] - agent_pos[0])
                 angle_diff = abs(angle - agent_direction)
@@ -238,9 +236,8 @@ class Environment:
         food_pos = closest_food.get_pos()
 
         direction = math.atan2(food_pos[1] - agent_pos[1], food_pos[0] - agent_pos[0])
+        agent.direction = direction + agent.direction
         agent.set_correlation(c=0)
-
-        return closest_food, direction
 
     def check_intercept(self, agent, points):
         """Check if points within an agent's sector of vision intercept the agent's rays"""
@@ -357,11 +354,11 @@ class Environment:
             points = self.check_point(agent)
 
             if len(points) == 0:
-                agent.move(direction=None)
+                agent.move()
 
             else:
-                food, direction = self.find_closest(agent, points)
-                agent.move(direction=direction)
+                self.find_closest(agent, points)
+                agent.move()
                 self.eat_check(agent, points)
                 # self.eat(agent, food)
 

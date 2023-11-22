@@ -57,7 +57,7 @@ class Agent:
         # self.size = 100
 
         self.pos = pos  # assign position, energy, and direction
-        self.direction = np.random.uniform(-np.pi, np.pi)
+        self.direction = np.random.uniform(0, 2*np.pi)
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
         self.correlation = 0.5
@@ -126,18 +126,17 @@ class Agent:
         """Return agent UID"""
         return id(self)
 
-    def rand_walk(self, t, direction=None):
+    def rand_walk(self, t):
         """Return dx, dy for a correlated random walk"""
 
         cone = np.pi / 4
-        if direction is None:
+        if self.correlation != 0:
             new_direction = self.direction + np.random.uniform(-cone, cone)
 
         else:
-            new_direction = direction + self.direction
+            new_direction = self.direction
 
         self.direction = self.correlation * new_direction + (1 - self.correlation) * self.direction
-
         delta_x = self.speed * t * np.cos(self.direction)
         delta_y = self.speed * t * np.sin(self.direction)
 
@@ -153,11 +152,11 @@ class Agent:
 
         return delta_x, delta_y
 
-    def move(self, direction):
+    def move(self):
         """Move agent one step, update position, decrease energy"""
 
         t = TIME_STEP
-        dx, dy = self.rand_walk(t, direction)  # generate dx, dy for random walk
+        dx, dy = self.rand_walk(t)  # generate dx, dy for random walk
         self.pos += np.asarray([dx, dy])
 
         new_energy = self.energy - self.get_energy_loss()
