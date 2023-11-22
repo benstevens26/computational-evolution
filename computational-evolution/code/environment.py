@@ -107,13 +107,13 @@ class Environment:
         y = np.random.uniform(0, self.size)
         return np.asarray([x, y])
 
-    def add_agent(self, init_pos=None, init_speed=None, init_size=None, init_energy=None):
+    def add_agent(self, init_pos=None, init_speed=None, init_size=None, init_energy=None, init_angle=None):
         """Add agent into environment"""
 
         if init_pos is None:
             init_pos = self.gen_pos()
 
-        agent = Agent(init_pos, init_speed, init_size, init_energy)
+        agent = Agent(init_pos, init_speed, init_size, init_energy, init_angle)
         self.agent_list.append(agent)
         self.num_agents += 1
 
@@ -285,18 +285,19 @@ class Environment:
         new_energy = parent.energy - INIT_ENERGY
         parent.set_energy(new_energy)
 
-        speed, size = self.mutate(parent)
+        speed, size, angle = self.mutate(parent)
 
         if isinstance(parent, Predator):
             self.add_predator(init_pos=child_pos, init_speed=speed, init_size=size)
         else:
-            self.add_agent(init_pos=child_pos, init_speed=speed, init_size=size)
+            self.add_agent(init_pos=child_pos, init_speed=speed, init_size=size, init_angle=angle)
 
     def mutate(self, parent):
         """Mutate and return new parameters"""
 
         speed = parent.get_speed()
         size = parent.get_size()
+        angle = parent.get_angle()
 
         if np.random.random() < self.mutation_rate:  # speed mutation
             self.mutation_count += 1
@@ -304,7 +305,7 @@ class Environment:
             while mutation == 0:
                 mutation = np.random.poisson(self.mutation_size, None)
 
-            speed = parent.get_speed() + (mutation * np.random.choice([-1, 1]))
+            speed = speed + (mutation * np.random.choice([-1, 1]))
             if speed < 0:
                 speed = 0
 
@@ -314,11 +315,19 @@ class Environment:
             while mutation == 0:
                 mutation = np.random.poisson(self.mutation_size, None)
 
-            size = parent.get_size() + (mutation * np.random.choice([-1, 1]))
+            size = size + (mutation * np.random.choice([-1, 1]))
             if size < 0:
                 size = 0
 
-        return speed, size
+        if np.random.random() < self.mutation_rate:  # size mutation
+            self.mutation_count += 1
+            mutation = np.random.poisson(self.mutation_size, None)*np.pi/20
+            while mutation == 0:
+                mutation = np.random.poisson(self.mutation_size, None)*np.pi/20
+
+            angle = angle + (mutation * np.random.choice([-1, 1]))
+
+        return speed, size, angle
 
     def step(self):
         """Step a set time through the environment"""

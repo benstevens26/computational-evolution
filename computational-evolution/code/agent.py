@@ -25,7 +25,7 @@ class Agent:
         direction (float): Direction of agent
     """
 
-    def __init__(self, pos, speed=None, size=None, energy=None):
+    def __init__(self, pos, speed=None, size=None, energy=None, theta=None):
         """Initialise agent
 
         """
@@ -48,6 +48,11 @@ class Agent:
         else:
             self.energy = energy
 
+        if theta is None:
+            self.angle = np.random.uniform(0, 3 * np.pi / 2)
+        else:
+            self.angle = theta
+
         # self.speed = 100
         # self.size = 100
 
@@ -55,8 +60,7 @@ class Agent:
         self.direction = np.random.uniform(-np.pi, np.pi)
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
-        self.correlation = 0.2
-        self.angle = np.random.uniform(0, 3*np.pi/2)
+        self.correlation = 0.5
         self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)
         self.vision_patch = patches.Wedge(self.pos, self.radius, theta1=(180/np.pi)*(self.direction-self.angle/2), theta2=(180/np.pi)*(self.direction+self.angle/2), alpha=0.3)
 
@@ -128,7 +132,7 @@ class Agent:
         cone = np.pi / 4
         if direction is None:
             new_direction = self.direction + np.random.uniform(-cone, cone)
-            self.set_correlation(c=0.2)
+            self.set_correlation(c=0.5)
 
         else:
             new_direction = direction
