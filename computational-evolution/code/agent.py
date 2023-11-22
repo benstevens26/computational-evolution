@@ -56,8 +56,8 @@ class Agent:
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
         self.correlation = 0.2
-        self.angle = np.random.uniform(np.pi, 3*np.pi/2)
-        self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)*10
+        self.angle = np.random.uniform(0, 3*np.pi/2)
+        self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)
 
     def get_pos(self):
         """Return agent position"""
@@ -126,7 +126,7 @@ class Agent:
         cone = np.pi / 4
         if direction is None:
             new_direction = self.direction + np.random.uniform(-cone, cone)
-            self.correlation = 0.2
+            self.set_correlation(c=0.2)
 
         else:
             new_direction = direction

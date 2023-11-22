@@ -24,15 +24,21 @@ def import_data(folder_path):
     return dataframes
 
 
-ben_path = "computational-evolution/data"
-dataframes = import_data(ben_path)
+# ben_path = "computational-evolution/data"
+# dataframes = import_data(ben_path)
 
 
 class Animation:
 
-    def __init__(self):
+    def __init__(self, times, speed, population, count, size):
         self.fig = plt.figure('Genespace', figsize=(6, 6))
         self.ax = plt.axes(xlim=(0, 200), ylim=(0, 200))
+
+        self.times = times
+        self.speeds = speed
+        self.population = population
+        self.sizes = size
+        self.counts = count
 
     def update(self, i):
         self.ax.clear()
@@ -46,11 +52,11 @@ class Animation:
         self.pop_text1 = self.ax.text(0.7 * 200, 1.01 * 200, '')
         self.fig_title = self.ax.text(0.35 * 200, 1.05 * 200, 'Genespace')
 
-        self.ax.scatter(df_speed1.iloc[i], df_size1.iloc[i], s=count1.iloc[i])
-        self.step_text1.set_text('Steps: ' + str(times1.iloc[i]))
-        self.pop_text1.set_text('Population: ' + str(population1.iloc[i]))
+        self.ax.scatter(self.speeds.iloc[i], self.sizes.iloc[i], s=self.counts.iloc[i])
+        self.step_text1.set_text('Steps: ' + str(self.times.iloc[i]))
+        self.pop_text1.set_text('Population: ' + str(self.population.iloc[i]))
 
     def animate(self):
-        anim = animation.FuncAnimation(self.fig, self.update, frames=len(times1), interval=0.1, repeat=False)
+        anim = animation.FuncAnimation(self.fig, self.update, frames=len(self.times), interval=0.1, repeat=False)
 
         plt.show()

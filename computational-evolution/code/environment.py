@@ -144,7 +144,7 @@ class Environment:
         """Add food into environment"""
 
         if init_pos is None:
-            init_pos = self.gen_pos_food()
+            init_pos = self.gen_pos_food(food_dist=False)
 
         food = Food(init_pos)
 
@@ -183,6 +183,7 @@ class Environment:
                     del_list_food.append(food)
                     self.num_food -= 1
                     agent.eat_food(food)
+                    agent.set_correlation(c=0.2)
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
@@ -196,7 +197,7 @@ class Environment:
             food.remove_patch()
             self.num_food -= 1
             agent.eat_food(food)
-            agent.set_correlation(c=0.5)
+            agent.set_correlation(c=0.2)
 
         self.food_list = [f for f in self.food_list if f is not food]
 
@@ -340,19 +341,19 @@ class Environment:
                 self.divide(parent=predator)
 
         for agent in self.agent_list:
-            agent.move(direction=None)
-            self.eat_check(agent, points=None)
+            # agent.move(direction=None)
+            # self.eat_check(agent, points=None)
 
-            # points = self.check_point(agent)
-            #
-            # if len(points) == 0:
-            #     agent.move(direction=None)
-            #
-            # else:
-            #     food, direction = self.find_closest(agent, points)
-            #     agent.move(direction=direction)
-            #     self.eat_check(agent, points)
-            #     # self.eat(agent, food)
+            points = self.check_point(agent)
+
+            if len(points) == 0:
+                agent.move(direction=None)
+
+            else:
+                food, direction = self.find_closest(agent, points)
+                agent.move(direction=direction)
+                self.eat_check(agent, points)
+                # self.eat(agent, food)
 
             if agent.get_energy() < 0:
                 agent.remove_patch()

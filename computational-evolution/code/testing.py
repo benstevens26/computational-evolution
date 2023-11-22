@@ -7,8 +7,12 @@ from time import time
 data_path = r"C:\Users\alyss\OneDrive\Documents\Year 3 Physics\Project Data\data"
 sims = 5
 
-for i in range(sims):
-    env = Environment(sim_name=i)
-    env.populate(40, 40, 0)
-    env.run(num_steps=75000, animate=False, take_data=True)
-    env.save_data(data_path)
+env = Environment(sim_name='aly')
+env.populate(10, 30, 0)
+env.run(num_steps=75000, animate=True, take_data=False)
+
+# for i in range(sims):
+#     env = Environment(sim_name=i)
+#     env.populate(40, 40, 0)
+#     env.run(num_steps=75000, animate=False, take_data=True)
+#     env.save_data(data_path)
