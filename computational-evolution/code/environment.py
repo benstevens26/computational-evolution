@@ -119,6 +119,7 @@ class Environment:
 
         if self.animate:
             self.axes.add_patch(agent.patch)
+            self.axes.add_patch(agent.vision_patch)
 
     def add_predator(self, init_pos=None, init_speed=None, init_size=None):
         """Add predator into environment"""
@@ -399,6 +400,7 @@ class Environment:
 
             for agent in self.agent_list:
                 self.axes.add_patch(agent.patch)
+                self.axes.add_patch(agent.vision_patch)
             for food in self.food_list:
                 self.axes.add_patch(food.patch)
             for predator in self.predator_list:

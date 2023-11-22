@@ -58,6 +58,8 @@ class Agent:
         self.correlation = 0.2
         self.angle = np.random.uniform(0, 3*np.pi/2)
         self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)
+        self.vision_patch = patches.Wedge(self.pos, self.radius, theta1=(180/np.pi)*(self.direction-self.angle/2), theta2=(180/np.pi)*(self.direction+self.angle/2), alpha=0.3)
+
 
     def get_pos(self):
         """Return agent position"""
@@ -161,10 +163,14 @@ class Agent:
     def update_patch(self):
         """Update patch attribute centre"""
         self.patch.center = self.pos
+        self.vision_patch.set_center(self.pos)
+        self.vision_patch.set_theta1((180/np.pi) * (self.direction-self.angle/2))
+        self.vision_patch.set_theta2((180/np.pi) * (self.direction+self.angle/2))
 
     def remove_patch(self):
         """Remove patch attribute"""
         self.patch.set_visible(False)
+        self.vision_patch.set_visible(False)
 
     def set_direction(self, direction):
         """Change the direction of the agent"""
