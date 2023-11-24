@@ -61,6 +61,7 @@ class Environment:
         self.animate = None
         self.mutation_rate = PROB_MUTATE
         self.mutation_size = 5
+        self.min_angle = np.pi / 50
 
     def set_size(self, size):
         """Set environment size"""
@@ -197,7 +198,7 @@ class Environment:
             food.remove_patch()
             self.num_food -= 1
             agent.eat_food(food)
-            agent.set_correlation(c=0.5)
+            agent.set_correlation(c=0.7)
 
         self.food_list = [f for f in self.food_list if f is not food]
 
@@ -214,10 +215,10 @@ class Environment:
         for food in self.food_list:
             food_pos = food.get_pos()
             dist = self.distance(agent, food)
-            if dist <= agent_radius:
+            if dist <= agent_radius + food.size:
                 angle = math.atan2(food_pos[1] - agent_pos[1], food_pos[0] - agent_pos[0])
                 angle_diff = abs(angle - agent_direction)
-                if angle_diff <= agent_angle/2:
+                if angle_diff <= agent_angle:
                     points.append(food)
 
         return points
@@ -236,27 +237,8 @@ class Environment:
         food_pos = closest_food.get_pos()
 
         direction = math.atan2(food_pos[1] - agent_pos[1], food_pos[0] - agent_pos[0])
-        agent.direction = direction + agent.direction
+        agent.direction = direction
         agent.set_correlation(c=0)
-
-    def check_intercept(self, agent, points):
-        """Check if points within an agent's sector of vision intercept the agent's rays"""
-
-        eat_me = []  # change this at some point
-        rays = agent.get_rays()
-
-        for food in points:  # could combine this and check_point, make check_intercept a static method
-            centre = food.get_pos()
-            radius = food.get_size()
-
-            for ray in rays:
-                a, b, c = ray.get_equation_of_ray_line  # can be included in agent.get_rays() ?
-                dist = (a * centre[0] + b * centre[1] + c) / np.sqrt(
-                    a ** 2 + b ** 2)  # distance from ray to food centre
-                if dist <= radius:
-                    eat_me.append(food)
-
-        return eat_me
 
     def eat_check_predator(self, predator):
         """Check for prey nearby predator and eat"""
@@ -318,11 +300,13 @@ class Environment:
 
         if np.random.random() < self.mutation_rate:  # size mutation
             self.mutation_count += 1
-            mutation = np.random.poisson(self.mutation_size, None)*np.pi/20
+            mutation = np.random.poisson(self.mutation_size, None)*np.pi/100
             while mutation == 0:
-                mutation = np.random.poisson(self.mutation_size, None)*np.pi/20
+                mutation = np.random.poisson(self.mutation_size, None)*np.pi/100
 
             angle = angle + (mutation * np.random.choice([-1, 1]))
+            if angle < self.min_angle:
+                angle = self.min_angle
 
         return speed, size, angle
 
@@ -360,7 +344,6 @@ class Environment:
                 self.find_closest(agent, points)
                 agent.move()
                 self.eat_check(agent, points)
-                # self.eat(agent, food)
 
             if agent.get_energy() < 0:
                 agent.remove_patch()

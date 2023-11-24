@@ -49,7 +49,7 @@ class Agent:
             self.energy = energy
 
         if theta is None:
-            self.angle = np.random.uniform(0, 3 * np.pi / 2)
+            self.angle = np.random.uniform(np.pi / 50, 3 * np.pi / 2)
         else:
             self.angle = theta
 
@@ -60,7 +60,7 @@ class Agent:
         self.direction = np.random.uniform(0, 2*np.pi)
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
-        self.correlation = 0.5
+        self.correlation = 0.7
         self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)
         self.vision_patch = patches.Wedge(self.pos, self.radius, theta1=(180/np.pi)*(self.direction-self.angle/2), theta2=(180/np.pi)*(self.direction+self.angle/2), alpha=0.3)
 
@@ -136,7 +136,7 @@ class Agent:
         else:
             new_direction = self.direction
 
-        self.direction = self.correlation * new_direction + (1 - self.correlation) * self.direction
+        self.direction = (1 - self.correlation) * new_direction + self.correlation * self.direction
         delta_x = self.speed * t * np.cos(self.direction)
         delta_y = self.speed * t * np.sin(self.direction)
 
