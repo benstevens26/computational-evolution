@@ -60,7 +60,7 @@ class Agent:
         self.direction = np.random.uniform(0, 2*np.pi)
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
-        self.correlation = 0.7
+        self.correlation = CORRELATION_FACTOR
         self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)
         self.vision_patch = patches.Wedge(self.pos, self.radius, theta1=(180/np.pi)*(self.direction-self.angle/2), theta2=(180/np.pi)*(self.direction+self.angle/2), alpha=0.3)
 

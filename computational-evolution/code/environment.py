@@ -62,7 +62,7 @@ class Environment:
         self.mutation_rate = PROB_MUTATE
         self.mutation_size = 5
         self.min_angle = np.pi / 50
-        self.max_angle = 3*np.pi / 2
+        self.max_angle = 3 * np.pi / 2
 
     def set_size(self, size):
         """Set environment size"""
@@ -122,18 +122,19 @@ class Environment:
             self.axes.add_patch(agent.patch)
             self.axes.add_patch(agent.vision_patch)
 
-    def add_predator(self, init_pos=None, init_speed=None, init_size=None):
+    def add_predator(self, init_pos=None, init_speed=None, init_size=None, init_angle=None):
         """Add predator into environment"""
 
         if init_pos is None:
             init_pos = self.gen_pos()
 
-        predator = Predator(init_pos, init_speed, init_size)
+        predator = Predator(init_pos, init_speed, init_size, init_angle)
         self.predator_list.append(predator)
         self.num_predators += 1
 
         if self.animate:
             self.axes.add_patch(predator.patch)
+            self.axes.add_patch(predator.vision_patch)
 
     def get_agent(self, agent_id):
         """Return agent with a given id"""
@@ -185,33 +186,29 @@ class Environment:
                     food.remove_patch()
                     del_list_food.append(food)
                     self.num_food -= 1
-                    agent.set_correlation(c=0.5)
+                    agent.set_correlation(c=CORRELATION_FACTOR)
 
         self.food_list = [food for food in self.food_list if food not in del_list_food]
 
-    def eat(self, agent, food):
-        """Checks to see if the closest piece of food is close enough to eat"""
-
-        total_size = food.size + agent.size
-        dist = self.distance(agent, food)
-
-        if dist <= total_size:
-            food.remove_patch()
-            self.num_food -= 1
-            agent.eat_food(food)
-            agent.set_correlation(c=0.7)
-
-        self.food_list = [f for f in self.food_list if f is not food]
-
-    def check_point(self, agent):
-        """Check for food within the agent's circle sector of vision"""
+    def check_point_agent(self, agent):
+        """Check for food and predators within the agent's circle sector of vision"""
 
         points = []
+        predators = []
 
         agent_pos = agent.get_pos()
         agent_angle = agent.get_angle()
         agent_radius = agent.get_radius()
         agent_direction = agent.get_direction()
+
+        for predator in self.predator_list:
+            predator_pos = predator.get_pos()
+            dist = self.distance(agent, predator)
+            if dist <= agent_radius + predator.size:
+                angle = math.atan2(predator_pos[1] - agent_pos[1], predator_pos[0] - agent_pos[0])
+                angle_diff = abs(angle - agent_direction)
+                if angle_diff <= agent_angle:
+                    predators.append(predator)
 
         for food in self.food_list:
             food_pos = food.get_pos()
@@ -222,7 +219,29 @@ class Environment:
                 if angle_diff <= agent_angle:
                     points.append(food)
 
-        return points
+        return points, predators
+
+    def check_point_predator(self, predator):
+        """Check for agents within the predator's cone of sight"""
+
+        agents = []
+
+        predator_pos = predator.get_pos()
+        predator_angle = predator.get_angle()
+        predator_radius = predator.get_radius()
+        predator_direction = predator.get_direction()
+
+        for agent in self.agent_list:
+            if agent.size <= predator.size:
+                agent_pos = agent.get_pos()
+                dist = self.distance(predator, agent)
+                if dist <= predator_radius + agent.size:
+                    angle = math.atan2(agent_pos[1] - predator_pos[1], agent_pos[0] - predator_pos[0])
+                    angle_diff = abs(angle - predator_direction)
+                    if angle_diff <= predator_angle:
+                        agents.append(agent)
+
+        return agents
 
     @staticmethod
     def distance(agent, food):
@@ -230,7 +249,7 @@ class Environment:
 
         return np.linalg.norm(agent.pos - food.pos)
 
-    def find_closest(self, agent, food):
+    def find_closest_food(self, agent, food):
         """Calculates which food in the agent's vision is closest to it"""
 
         closest_food = min(food, key=lambda i: self.distance(agent, i))
@@ -241,20 +260,46 @@ class Environment:
         agent.direction = direction
         agent.set_correlation(c=0)
 
-    def eat_check_predator(self, predator):
+    def find_closest_agent(self, predator, agents):
+        """Check's for the closest agent in the predator's cone of sight"""
+
+        closest_agent = min(agents, key=lambda i: self.distance(predator, i))
+        predator_pos = predator.get_pos()
+        agent_pos = closest_agent.get_pos()
+
+        direction = math.atan2(agent_pos[1] - predator_pos[1], agent_pos[0] - predator_pos[0])
+        predator.direction = direction
+        predator.set_correlation(c=0)
+
+    def eat_check_predator(self, predator, agents):
         """Check for prey nearby predator and eat"""
 
         del_list_agent = []
-        for agent in self.agent_list:
-            predator_size = predator.size
-            agent_size = agent.size
 
-            if predator_size > agent_size:
-                if np.linalg.norm(predator.pos - agent.pos) < (agent_size + predator_size):
-                    agent.remove_patch()
-                    del_list_agent.append(agent)
-                    self.num_agents -= 1
-                    predator.eat_food(food=agent)
+        if agents is None:
+            for agent in self.agent_list:
+                predator_size = predator.size
+                agent_size = agent.size
+
+                if predator_size > agent_size:
+                    if np.linalg.norm(predator.pos - agent.pos) < (agent_size + predator_size):
+                        agent.remove_patch()
+                        del_list_agent.append(agent)
+                        self.num_agents -= 1
+                        predator.eat_food(food=agent)
+
+        else:
+            for agent in agents:
+                predator_size = predator.size
+                agent_size = agent.size
+
+                if predator_size > agent_size:
+                    if np.linalg.norm(predator.pos - agent.pos) < (agent_size + predator_size):
+                        agent.remove_patch()
+                        del_list_agent.append(agent)
+                        self.num_agents -= 1
+                        predator.eat_food(food=agent)
+                        predator.set_correlation(c=CORRELATION_FACTOR)
 
         self.agent_list = [agent for agent in self.agent_list if agent not in del_list_agent]
 
@@ -268,7 +313,7 @@ class Environment:
         speed, size, angle = self.mutate(parent)
 
         if isinstance(parent, Predator):
-            self.add_predator(init_pos=child_pos, init_speed=speed, init_size=size)
+            self.add_predator(init_pos=child_pos, init_speed=speed, init_size=size, init_angle=angle)
         else:
             self.add_agent(init_pos=child_pos, init_speed=speed, init_size=size, init_angle=angle)
 
@@ -301,9 +346,9 @@ class Environment:
 
         if np.random.random() < self.mutation_rate:  # size mutation
             self.mutation_count += 1
-            mutation = np.random.poisson(self.mutation_size, None)*np.pi/100
+            mutation = np.random.poisson(self.mutation_size, None) * np.pi / 100
             while mutation == 0:
-                mutation = np.random.poisson(self.mutation_size, None)*np.pi/100
+                mutation = np.random.poisson(self.mutation_size, None) * np.pi / 100
 
             angle = angle + (mutation * np.random.choice([-1, 1]))
             if angle < self.min_angle:
@@ -323,8 +368,18 @@ class Environment:
         del_list_predator = []
 
         for predator in self.predator_list:
-            predator.move()
-            self.eat_check_predator(predator)
+            # predator.move()
+            # self.eat_check_predator(predator)
+
+            agents = self.check_point_predator(predator)
+
+            if len(agents) == 0:
+                predator.move()
+
+            else:
+                self.find_closest_agent(predator, agents)
+                predator.move()
+                self.eat_check_predator(predator, agents)
 
             if predator.get_energy() < 0:
                 predator.remove_patch()
@@ -338,13 +393,19 @@ class Environment:
             # agent.move(direction=None)
             # self.eat_check(agent, points=None)
 
-            points = self.check_point(agent)
+            points, predators = self.check_point_agent(agent)
+
+            if len(predators) != 0:
+                agent.direction = -agent.direction
+                agent.set_correlation(c=0)
+                agent.move()
+                agent.set_correlation(c=CORRELATION_FACTOR)
 
             if len(points) == 0:
                 agent.move()
 
             else:
-                self.find_closest(agent, points)
+                self.find_closest_food(agent, points)
                 agent.move()
                 self.eat_check(agent, points)
 
@@ -397,6 +458,7 @@ class Environment:
                 self.axes.add_patch(food.patch)
             for predator in self.predator_list:
                 self.axes.add_patch(predator.patch)
+                self.axes.add_patch(predator.vision_patch)
 
             anim = animation.FuncAnimation(self.fig, self.update, frames=num_steps, repeat=False,
                                            interval=10)
