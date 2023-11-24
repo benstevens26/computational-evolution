@@ -54,6 +54,7 @@ class Environment:
         self.predator_list = []
         self.food_data = []
         self.agent_data = []
+        self.predator_data = []
         self.pop_data = []
         self.mutation_count = 0
         self.food_spawn_rate = FOOD_SPAWN_RATE
@@ -489,12 +490,31 @@ class Environment:
             ag_id = agent.get_id()
             speed = agent.get_speed()
             size = agent.get_size()
+            angle = agent.get_angle()
 
             energy_rounded = np.round(energy, 3)
             x_rounded = np.round(pos[0], 3)
             y_rounded = np.round(pos[1], 3)
 
-            self.agent_data.append([self.step_count, ag_id, x_rounded, y_rounded, energy_rounded, speed, size])
+            self.agent_data.append([self.step_count, ag_id, x_rounded, y_rounded, energy_rounded, speed, size, angle])
+
+    def record_predators(self):
+        """Append data for each predator instance to predator_data"""
+
+        for predator in self.predator_list:
+            pos = predator.get_pos()
+            energy = predator.get_energy()
+            pred_id = predator.get_id()
+            speed = predator.get_speed()
+            size = predator.get_size()
+            angle = predator.get_angle()
+
+            energy_rounded = np.round(energy, 3)
+            x_rounded = np.round(pos[0], 3)
+            y_rounded = np.round(pos[1], 3)
+
+            self.predator_data.append([self.step_count, pred_id, x_rounded, y_rounded, energy_rounded,
+                                       speed, size, angle])
 
     def record_pop(self):
         """Append population data to pop_data"""
@@ -515,6 +535,7 @@ class Environment:
     def record_state(self):
         """Record all information about state"""
         self.record_agents()
+        self.record_predators()
         self.record_food()
         self.record_pop()
 
@@ -522,14 +543,21 @@ class Environment:
         """Package all data into dataframe and save csvs to /data"""
 
         agent_df = pd.DataFrame(data=self.agent_data,
-                                columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy', 'Speed', 'Size'])
+                                columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy', 'Speed',
+                                         'Size', 'Angle'])
         pop_df = pd.DataFrame(data=self.pop_data,
                               columns=['Time Elapsed/s', 'Agent Population', 'Food Population'])
         food_df = pd.DataFrame(data=self.food_data,
-                               columns=['Time Elapsed', 'ID', 'X-Coord', 'Y-Coord'])
+                               columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord'])
+        predator_df = pd.DataFrame(data=self.predator_data,
+                                   columns=['Time Elapsed/s', 'ID', 'X-Coord', 'Y-Coord', 'Energy',
+                                            'Speed', 'Size', 'Angle'])
 
         agent_df.to_csv(f"{data_file_path}/agent_data_{self.sim_name}.csv",
                         index=False)
+
+        predator_df.to_csv(f"{data_file_path}/predator_data_{self.sim_name}.csv",
+                           index=False)
 
         pop_df.to_csv(f"{data_file_path}/pop_data_{self.sim_name}.csv",
                       index=False)
