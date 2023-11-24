@@ -62,6 +62,7 @@ class Environment:
         self.mutation_rate = PROB_MUTATE
         self.mutation_size = 5
         self.min_angle = np.pi / 50
+        self.max_angle = 3*np.pi / 2
 
     def set_size(self, size):
         """Set environment size"""
@@ -307,6 +308,8 @@ class Environment:
             angle = angle + (mutation * np.random.choice([-1, 1]))
             if angle < self.min_angle:
                 angle = self.min_angle
+            if angle > self.max_angle:
+                angle = self.max_angle
 
         return speed, size, angle
 
