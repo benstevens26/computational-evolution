@@ -61,7 +61,10 @@ class Agent:
         self.patch = patches.Circle(self.pos, self.size, fc='blue')
         self.rep_threshold = REP_THRESHOLD
         self.correlation = CORRELATION_FACTOR
-        self.radius = (np.sqrt(MAX_SIGHT / self.angle) + self.size)
+        self.max_sight = MAX_SIGHT
+        if self.size < MIN_SIZE:
+            self.max_sight = (MAX_SIGHT / MIN_SIZE) * self.size
+        self.radius = (np.sqrt(self.max_sight / self.angle) + self.size)
         self.vision_patch = patches.Wedge(self.pos, self.radius, theta1=(180/np.pi)*(self.direction-self.angle/2), theta2=(180/np.pi)*(self.direction+self.angle/2), alpha=0.3)
 
 
@@ -109,7 +112,7 @@ class Agent:
 
     def eat_food(self, food):
         """Increase agent energy by energy of food"""
-        eat_energy = food.energy
+        eat_energy = EAT_ENERGY
         new_energy = self.get_energy() + eat_energy
         self.set_energy(new_energy)
 
