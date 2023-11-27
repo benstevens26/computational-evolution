@@ -124,13 +124,13 @@ class Environment:
             self.axes.add_patch(agent.patch)
             self.axes.add_patch(agent.vision_patch)
 
-    def add_predator(self, init_pos=None, init_speed=None, init_size=None, init_angle=None):
+    def add_predator(self, init_pos=None, init_speed=None, init_size=None, init_energy=None, init_angle=None):
         """Add predator into environment"""
 
         if init_pos is None:
             init_pos = self.gen_pos()
 
-        predator = Predator(init_pos, init_speed, init_size, init_angle)
+        predator = Predator(init_pos, init_speed, init_size, init_energy, init_angle)
         self.predator_list.append(predator)
         self.num_predators += 1
 
@@ -288,7 +288,7 @@ class Environment:
                         agent.remove_patch()
                         del_list_agent.append(agent)
                         self.num_agents -= 1
-                        predator.eat_food(food=agent)
+                        predator.eat_food(agent)
 
         else:
             for agent in agents:
@@ -434,6 +434,7 @@ class Environment:
         self.step()
         self.step_text.set_text('Steps: ' + str(self.step_count))
         self.pop_text.set_text('Prey: ' + str(self.num_agents))
+        self.pop2_text.set_text('Predators: ' + str(self.num_predators))
 
         for agent in self.agent_list:
             agent.update_patch()
@@ -451,6 +452,7 @@ class Environment:
             self.axes = plt.axes(xlim=(0, self.size), ylim=(0, self.size))
             self.step_text = self.axes.text(0.4 * self.size, 1.02 * self.size, '')
             self.pop_text = self.axes.text(0.6 * self.size, 1.02 * self.size, '')
+            self.pop2_text = self.axes.text(0.1 * self.size, 1.02 * self.size, '')
             self.fig_title = self.axes.text(0.35 * self.size, 1.05 * self.size, 'Environment')
 
             for agent in self.agent_list:

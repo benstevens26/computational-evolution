@@ -15,13 +15,3 @@ class Predator(Agent):
                                           theta1=(180 / np.pi) * (self.direction - self.angle / 2),
                                           theta2=(180 / np.pi) * (self.direction + self.angle / 2), alpha=0.3,
                                           fc='lightcoral')
-
-
-    def eat_food(self, food):
-        """Increase agent energy by energy of food"""
-        eat_energy = 1.5 * EAT_ENERGY
-        new_energy = self.get_energy() + eat_energy
-        self.set_energy(new_energy)
-
-        if self.energy > MAX_ENERGY:
-            self.set_energy(MAX_ENERGY)

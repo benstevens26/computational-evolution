@@ -14,7 +14,7 @@ MIN_SIZE = 50
 # environment related constants
 ENV_SIZE = 8000
 TIME_STEP = 0.1
-DATA_INTERVAL = 5  # number of steps between data collection
+DATA_INTERVAL = 1  # number of steps between data collection
 CONTINUATION = False
 
 # food related constants

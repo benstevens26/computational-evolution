@@ -112,7 +112,7 @@ class Agent:
 
     def eat_food(self, food):
         """Increase agent energy by energy of food"""
-        eat_energy = EAT_ENERGY
+        eat_energy = food.energy
         new_energy = self.get_energy() + eat_energy
         self.set_energy(new_energy)
 
@@ -122,7 +122,7 @@ class Agent:
     def get_energy_loss(self):
         """Return energy loss per step"""
         t = TIME_STEP
-        energy_loss = ((t * self.speed * self.speed) / 10000) * self.size + BASE_LOSS
+        energy_loss = ((t * self.speed * self.speed) / 1000000) * (self.size * self.size) + BASE_LOSS
         return energy_loss
 
     def get_id(self):
