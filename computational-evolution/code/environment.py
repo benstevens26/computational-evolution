@@ -18,6 +18,7 @@ from food import Food
 from predator import Predator
 import pandas as pd
 import math
+from tqdm import tqdm
 
 
 class Environment:
@@ -466,14 +467,11 @@ class Environment:
             plt.show()
             return
 
-        for i in range(num_steps):
+        for i in tqdm(range(num_steps)):
             if self.num_agents == 0:
                 raise Exception("First populate environment")
 
             self.step()
-
-            if self.step_count % 100 == 0:
-                print('frame ', self.step_count, '/', num_steps)
 
             if take_data is True:
                 if self.step_count % DATA_INTERVAL == 0:
