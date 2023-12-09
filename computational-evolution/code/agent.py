@@ -64,7 +64,7 @@ class Agent:
         self.max_sight = MAX_SIGHT
         if self.size < MIN_SIZE:
             self.max_sight = (MAX_SIGHT / MIN_SIZE) * self.size
-        self.radius = (np.sqrt(self.max_sight / self.angle) + self.size)
+        self.radius = self.max_sight / np.sqrt(self.angle)
         self.vision_patch = patches.Wedge(self.pos, self.radius, theta1=(180/np.pi)*(self.direction-self.angle/2), theta2=(180/np.pi)*(self.direction+self.angle/2), alpha=0.3)
 
 

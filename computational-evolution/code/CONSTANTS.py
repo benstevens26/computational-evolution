@@ -4,11 +4,12 @@
 INIT_SPEED = 100
 INIT_ENERGY = 8000
 MAX_ENERGY = 16000
+PREDATOR_MAX_ENERGY = 24000
 EAT_ENERGY = 4000
 CORRELATION_FACTOR = 0.7
 REP_THRESHOLD = 0.8  # reproduction threshold, e.g. 0.8 -> 80% energy required to reproduce
 PROB_MUTATE = 0.5  # probability of a mutation occurring in offspring
-MAX_SIGHT = 50000
+MAX_SIGHT = 500
 MIN_SIZE = 50
 
 # environment related constants

@@ -388,7 +388,7 @@ class Environment:
                 del_list_predator.append(predator)
                 self.num_predators -= 1
 
-            if predator.get_energy() > (REP_THRESHOLD * MAX_ENERGY):
+            if predator.get_energy() > (REP_THRESHOLD * PREDATOR_MAX_ENERGY):
                 self.divide(parent=predator)
 
         for agent in self.agent_list:
@@ -471,7 +471,10 @@ class Environment:
 
         for i in tqdm(range(num_steps)):
             if self.num_agents == 0:
-                raise Exception("First populate environment")
+                return print('No agents left')
+
+           # if self.num_predators == 0:
+              ##  return print('No predators left')
 
             self.step()
 
