@@ -7,11 +7,11 @@ import numpy as np
 # data_path = "/Users/benstevens/PycharmProjects/computational-evolution/computational-evolution/data"
 data_path = r"C:\Users\alyss\OneDrive\Documents\Year 3 Physics\Project Data\data"
 
-for i in [1, 2, 3]:
+for i in [1]:
     env = Environment(sim_name=f'no_pred_{i}')
-    env.populate(20, 15, 0)
-    env.run(num_steps=35000, animate=False, take_data=True)
-    env.save_data(data_path)
+    env.populate(30, 20, 30)
+    env.run(num_steps=2000, animate=True, take_data=False)
+    #env.save_data(data_path)
     print('Data Saved')
 
 # for i in sims:

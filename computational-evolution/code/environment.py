@@ -465,8 +465,8 @@ class Environment:
                 self.axes.add_patch(predator.vision_patch)
 
             anim = animation.FuncAnimation(self.fig, self.update, frames=num_steps, repeat=False,
-                                           interval=10)
-            plt.show()
+                                           interval=1)
+            anim.save('Simulation.gif')
             return
 
         for i in tqdm(range(num_steps)):

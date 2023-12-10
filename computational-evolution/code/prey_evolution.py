@@ -70,46 +70,49 @@ df_agent3 = df_data3[['Time Elapsed/s', 'Speed', 'Size', 'Angle']]
 # anim = analysis.Animation(times3, prey, predator)
 # anim.animate()
 
-speed_mean = (df_agent3.groupby(['Time Elapsed/s'])['Speed'].mean().reset_index(name='Mean')).iloc[::1000]
-size_mean = (df_agent3.groupby(['Time Elapsed/s'])['Size'].mean().reset_index(name='Mean')).iloc[::1000]
-angle_mean = (df_agent3.groupby(['Time Elapsed/s'])['Angle'].mean().reset_index(name='Mean')).iloc[::1000]
-
-speed_sd = (df_agent3.groupby(['Time Elapsed/s'])['Speed'].std().reset_index(name='Sd')).iloc[::1000]
-size_sd = (df_agent3.groupby(['Time Elapsed/s'])['Size'].std().reset_index(name='Sd')).iloc[::1000]
-angle_sd = (df_agent3.groupby(['Time Elapsed/s'])['Angle'].std().reset_index(name='Sd')).iloc[::1000]
-
+# speed_mean = (df_agent3.groupby(['Time Elapsed/s'])['Speed'].mean().reset_index(name='Mean')).iloc[::1000]
+# size_mean = (df_agent3.groupby(['Time Elapsed/s'])['Size'].mean().reset_index(name='Mean')).iloc[::1000]
+# angle_mean = (df_agent3.groupby(['Time Elapsed/s'])['Angle'].mean().reset_index(name='Mean')).iloc[::1000]
+#
+# speed_sd = (df_agent3.groupby(['Time Elapsed/s'])['Speed'].std().reset_index(name='Sd')).iloc[::1000]
+# size_sd = (df_agent3.groupby(['Time Elapsed/s'])['Size'].std().reset_index(name='Sd')).iloc[::1000]
+# angle_sd = (df_agent3.groupby(['Time Elapsed/s'])['Angle'].std().reset_index(name='Sd')).iloc[::1000]
+#
+# plt.figure(figsize=[7, 5])
 # plt.grid()
-# plt.title('Change in Angle')
+# plt.title('Angle Evolution')
 # plt.xlabel('Time Elapsed/s')
-# plt.ylabel('Angle')
+# plt.ylabel('Mean Angle')
 # plt.ylim(0, 6)
 #
 # plt.errorbar(angle_mean['Time Elapsed/s'], angle_mean['Mean'], yerr=angle_sd['Sd'], fmt='x',
-#              color='blue', capsize=2)
+#              color='mediumpurple', capsize=2)
 # plt.axvline(x=11290, color='black', linestyle='dashed', label='No Predators')
 # plt.legend()
 # plt.savefig('Angle - No Pred')
-
-plt.grid()
-plt.title('Change in Speed')
-plt.xlabel('Time Elapsed/s')
-plt.ylabel('Speed')
-plt.ylim(0, 180)
-
-plt.errorbar(speed_mean['Time Elapsed/s'], speed_mean['Mean'], yerr=speed_sd['Sd'], fmt='x',
-             color='blue', capsize=2)
-plt.axvline(x=11290, color='black', linestyle='dashed', label='No Predators')
-plt.legend()
-plt.savefig('Speed - No Pred')
 #
+# plt.figure(figsize=[7, 5])
 # plt.grid()
-# plt.title('Change in Size')
+# plt.title('Speed Evolution')
 # plt.xlabel('Time Elapsed/s')
-# plt.ylabel('Size')
+# plt.ylabel('Mean Speed')
+# plt.ylim(0, 180)
+#
+# plt.errorbar(speed_mean['Time Elapsed/s'], speed_mean['Mean'], yerr=speed_sd['Sd'], fmt='x',
+#              color='mediumpurple', capsize=2)
+# plt.axvline(x=11290, color='black', linestyle='dashed', label='No Predators')
+# plt.legend()
+# plt.savefig('Speed - No Pred')
+# #
+# plt.figure(figsize=[7, 5])
+# plt.grid()
+# plt.title('Size Evolution')
+# plt.xlabel('Time Elapsed/s')
+# plt.ylabel('Mean Size')
 # plt.ylim(0, 140)
 #
 # plt.errorbar(size_mean['Time Elapsed/s'], size_mean['Mean'], yerr=size_sd['Sd'], fmt='x',
-#              color='blue', capsize=2)
+#              color='mediumpurple', capsize=2)
 # plt.axvline(x=11290, color='black', linestyle='dashed', label='No Predators')
 # plt.legend()
-# plt.show()
+# plt.savefig('Size - No Pred')
